@@ -10,9 +10,9 @@
     <meta name="keyword"  content="">
     <link rel="shortcut icon" href="/img/favicon.ico">
 
-    <title>Example Post using Keynote Layout - 你的博客 | Shit Happens</title>
+    <title>RxSwift简介 - 你的博客 | Shit Happens</title>
 
-    <link rel="canonical" href="http://lucida.top/2015/07/09/js-module-7day/">
+    <link rel="canonical" href="http://lucida.top/2017/11/20/RxSwift-overview/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -125,45 +125,36 @@
 
     <!-- Image to hack wechat -->
 <!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
-<!-- <img src="/img/post-bg-js-version.jpg" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-2015.jpg" width="0" height="0"> -->
 
 <!-- Post Header -->
 <style type="text/css">
     header.intro-header{
-        /*background-image: url('/img/post-bg-js-version.jpg')*/
-        height: 500px;
-        overflow: hidden;
-    }
-    header iframe{
-        width: 100%;
-        height: 100%;
-        border: 0;
+        background-image: url('/img/post-bg-2015.jpg')
     }
 </style>
 <header class="intro-header" >
-    <iframe src="http://huangxuan.me/js-module-7day/"/>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                    <div class="post-heading">
-                        <div class="tags">
-                            
-                            <a class="tag" href="/tags/#前端开发" title="前端开发">前端开发</a>
-                            
-                            <a class="tag" href="/tags/#JavaScript" title="JavaScript">JavaScript</a>
-                            
-                        </div>
-                        <h1>Example Post using Keynote Layout</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
                         
+                        <a class="tag" href="/tags/#RxSwift" title="RxSwift">RxSwift</a>
                         
-                        <h2 class="subheading">Keynote: JavaScript Modularization Journey</h2>
+                        <a class="tag" href="/tags/#读书笔记" title="读书笔记">读书笔记</a>
                         
-                        <span class="meta">Posted by Hux on July 9, 2015</span>
                     </div>
+                    <h1>RxSwift简介</h1>
+                    
+                    
+                    <h2 class="subheading"> "初探RxSwift"</h2>
+                    
+                    <span class="meta">Posted by RobertYeYu on November 20, 2017</span>
                 </div>
             </div>
         </div>
-    </iframe>
+    </div>
 </header>
 
 <!-- Post Content -->
@@ -171,42 +162,107 @@
     <div class="container">
         <div class="row">
 
-            <!-- Post Container -->
-            <div class="post-container
+    <!-- Post Container -->
+            <div class="
                 col-lg-8 col-lg-offset-2
-                col-md-10 col-md-offset-1 ">
+                col-md-10 col-md-offset-1
+                post-container">
 
 				<blockquote>
-  <p>下滑这里查看更多内容</p>
+  <p>“Don’t worry, Be happy ”</p>
 </blockquote>
 
-<p>7月9日，我在公司内部进行了名为「JavaScript 模块化七日谈」分享，并将该 Slides 分享到了微博上。出乎意料地，这篇微博先后被 @JS小组 @尤小右 @寸志 等近 200 人转发，阅读达到 10w，获得了还不错的评价。</p>
+<h2 id="section">废话</h2>
+<p>终于下定决心写一些东西，因为最近总感觉，有一些东西就在嘴边，却怎么也想不起来。所以还是得记下来。烂笔头就这样用起来吧。</p>
 
-<p>于是，我决定将它重新发到我的博客上，并为它专门制作了适用于 Keynote 展示文稿的新布局。它能自动根据屏幕大小/旋转以一定比例填充屏幕，你也可以直接点击下方链接在新页面打开，来获得更好的、沉浸式的全屏体验</p>
+<h2 id="rxswift">RxSwift概览</h2>
 
-<h3 id="watch-slides-httphuangxuanmejs-module-7day"><a href="http://huangxuan.me/js-module-7day">Watch Slides →</a></h3>
+<blockquote>
+  <p>RxSwift is a library for composing asynchronous and event-based code by using observable sequences and functional style operators, allowing for parameterized execution via schedulers.</p>
+</blockquote>
 
-<p><img src="http://huangxuan.me/js-module-7day/attach/qrcode.png" width="350" height="350" /></p>
-
-<p><small class="img-hint">你也可以通过扫描二维码在手机上观看</small></p>
-
-<p>这个 Web Slides 开源在<a href="https://github.com/Huxpro/js-module-7day">我的 Github 上</a>，欢迎你帮助我完善这个展示文稿，你可以给我提 issue，可以 fork &amp; pull request。如果它能帮助到你了，希望你还能不吝啬 star 一下这个项目</p>
-
-<h3 id="catalog">Catalog</h3>
+<p>What！！！
+本来我想翻译一下这句官方定义，但还是算了。但愿有一天我能信心满满的来翻译这一句话。但是，还是有几个点值得一看。</p>
 
 <ul>
-  <li>第一日 上古时期 <strong><em>Module?</em></strong> 从设计模式说起</li>
-  <li>第二日 石器时代 <strong><em>Script Loader</em></strong> 只有封装性可不够，我们还需要加载</li>
-  <li>第三日 蒸汽朋克 <strong><em>Module Loader</em></strong> 模块化架构的工业革命</li>
-  <li>第四日 号角吹响 <strong><em>CommonJS</em></strong> 征服世界的第一步是跳出浏览器</li>
-  <li>第五日 双塔奇兵 <strong><em>AMD/CMD</em></strong> 浏览器环境模块化方案</li>
-  <li>第六日 精灵宝钻 <strong><em>Browserify/Webpack</em></strong> 大势所趋，去掉这层包裹！</li>
-  <li>第七日 王者归来 <strong><em>ES6 Module</em></strong> 最后的战役</li>
+  <li>asynchronous 异步</li>
+  <li>event-based	 基于事件</li>
+  <li>observable sequences 这个怎么说呢，反正一切都是sequences</li>
+  <li>functional 函数式的</li>
 </ul>
 
-<h3 id="thanks">Thanks</h3>
+<p>是不是很fashion，几乎每个点都是当下流行的一本书了</p>
 
-<p><a href="http://lab.hakim.se/reveal-js">Reveal.js</a></p>
+<h2 id="section-1">异步</h2>
+<p>在app中，在任一时刻很多事情会同时发生，下载文件，刷新界面，向磁盘写入，等等…
+Cocoa和UIKit中有很多异步API:</p>
+
+<ul>
+  <li>NotificationCenter: 通知</li>
+  <li>The delegate pattern: 代理模式基本是我们常用的一种数据回传方式</li>
+  <li>Grand Central Dispatch: GCD可以帮助我们把业务逻辑抽象出来。可以把将这些代码顺序执行，也可以按照优先级在不同的队列上并行执行</li>
+  <li>Closures: 闭包可以让你把一段代码和上下文的参数传递给别的类，那样，接收到闭包的类就可以决定是否要执行这一段代码，执行多少次以及在特定上下文下执行</li>
+</ul>
+
+<p>异步所造成的问题就是，数据会被很多源操作。比如你循环打印一个数组中的元素，那你打印出来的array一定是你传入的array，那如果我每点击一下按钮打印一个元素，那你点第五下的时候，可能数组的第五个元素都被替换甚至删除了。</p>
+
+<p>另外，UI的刷新必须在主线程上，我们很多时候会忽略这个问题，有的时候tableView刷新，控件的位置错乱，就要看看是不是在主线程上执行的刷新方法了。</p>
+
+<h2 id="section-2">异步术语</h2>
+<p>### 1. State, and specifically, shared mutable state
+State直白来看就是状态。就像你的电脑，也许刚打开的时候很好用，然而开了两三天之后就卡了。但是硬件还是那样，软件代码也没有变，发生变化了的就是State。</p>
+
+<p>在内存和硬盘中的数据，对用户输入的反馈，从服务器下载内容留存下的痕迹–所有的这些就组成了电脑的State。</p>
+
+<p>处理我们app的State，特别是那些当需要在多个异步组件中共享的时候，RxSwift的价值就体现出来了。</p>
+
+<h3 id="imperative-programming">2. Imperative programming</h3>
+<p>命令式编程
+<code class="highlighter-rouge">
+override func viewDidAppear(_ animated: Bool) {
+	super.viewDidAppear(animated)
+	setupUI() 
+	connectUIControls()
+	createDataSource() 
+	listenForChanges()
+}
+</code></p>
+
+<p>典型的命令式编程，在我的代码里几乎随处可见，这种方式从代码上来看，我们根本不知道他做了什么。是否更新了ViewController的属性？最关键是问题是，代码是不是必须按照这个顺序执行？那如果我们要更换其中两个方法的位置，结果会相同么？如果和你搭档的开发同学要在另一个ViewController中用这其中的两个方法，你对其没有任何约束和指导，甚至连信息都不是很明确，谨慎起见，就一定要看里面的实现。</p>
+
+<h3 id="side-effects">3. Side effects</h3>
+<blockquote>
+  <p>Side effects are any change to the state outside of the current scope.</p>
+</blockquote>
+
+<p>很简单，举个例子，就像之前的代码，connectUIControls，看这个方法应该是刷新了UI界面，这就是这一行代码的side effects。改变内存中的数据，刷新界面上的label，这些都是side effects。我们的代码就是要来制造这些side effects的，所以，关键在于怎么能保证这些side effects是可控制的。造成的这些影响，都出于你的本意。</p>
+
+<p>RxSwift被设计来执行这样的事情</p>
+
+<h3 id="declarative-code">4. Declarative code</h3>
+<blockquote>
+  <p>Declarative code lets you define pieces of behavior, and RxSwift will run these behaviors any time there’s a relevant event and provide them an immutable, isolated data input to work with.</p>
+</blockquote>
+
+<p>声明式的代码可以定义一种行为(behavior)，只有有相关的事件发生，RxSwift就会接受一组不可变且隔离的数据，来运行这一段代码。</p>
+
+<p>这种数据形式使得在并行环境下，数据不会相互影响，设计逻辑的时候就可以简单处理，在某代码块中，代码也会顺序执行。</p>
+
+<ul>
+  <li>immutable</li>
+  <li>isolated</li>
+</ul>
+
+<h3 id="reactive-systems">5. Reactive systems</h3>
+<p>Reactive systems我们一般翻译成响应式系统，特别抽象，主要包含以下几种特征</p>
+
+<ul>
+  <li>Responsive: 总是让UI保持与数据同步，反映App的最新状态</li>
+  <li>Resilient: 字面意思是有复原能力的。也就是说每一段描述行为的业务代码(Behavior)都是相互隔离并且可以从错误中恢复并继续执行。</li>
+  <li>Elastic: 有弹性，可伸缩。就是说一串链式调用的代码处理了工作流上的很多部分，比如拉取数据，处理数据，控制事件等等。比如Worker.loadData.map.delay.shareTo.work</li>
+  <li>Message driven: 组件之间通过消息机制来传递信息，以提高隔离性和可重用性，从生命周期和具体的类实现中解耦（TODO: 具体怎么讲呢）</li>
+</ul>
+
 
 
                 <hr>
@@ -217,13 +273,9 @@
                 <ul class="pager">
                     
                     <li class="previous">
-                        <a href="/2015/05/25/js-module-loader/" data-toggle="tooltip" data-placement="top" title="Example Post with Code Highlight">&larr; Previous Post</a>
+                        <a href="/2015/09/22/js-version/" data-toggle="tooltip" data-placement="top" title="Example Post">&larr; Previous Post</a>
                     </li>
                     
-                    
-                    <li class="next">
-                        <a href="/2015/09/22/js-version/" data-toggle="tooltip" data-placement="top" title="Example Post">Next Post &rarr;</a>
-                    </li>
                     
                 </ul>
 
@@ -234,10 +286,11 @@
 
             </div>
 
-            <!-- Sidebar Container -->
-            <div class="sidebar-container
+    <!-- Sidebar Container -->
+            <div class="
                 col-lg-8 col-lg-offset-2
-                col-md-10 col-md-offset-1 ">
+                col-md-10 col-md-offset-1
+                sidebar-container">
 
                 <!-- Featured Tags -->
                 
@@ -245,32 +298,32 @@
                     <hr class="hidden-sm hidden-xs">
                     <h5><a href="/tags/">FEATURED TAGS</a></h5>
                     <div class="tags">
-                        
+        				
                             
-                        
+        				
                             
-                        
+        				
                             
-                        
+        				
                             
-                                <a href="/tags/#前端开发" title="前端开发" rel="3">
+                				<a href="/tags/#前端开发" title="前端开发" rel="3">
                                     前端开发
                                 </a>
                             
-                        
+        				
                             
-                                <a href="/tags/#JavaScript" title="JavaScript" rel="3">
+                				<a href="/tags/#JavaScript" title="JavaScript" rel="3">
                                     JavaScript
                                 </a>
                             
-                        
+        				
                             
-                        
+        				
                             
-                        
+        				
                             
-                        
-                    </div>
+        				
+        			</div>
                 </section>
                 
 
@@ -296,29 +349,6 @@
         </div>
     </div>
 </article>
-
-<!-- resize header to fullscreen keynotes -->
-<script>
-    var $header = document.getElementsByTagName("header")[0];
-    function resize(){
-        /*
-         * leave 85px to both
-         * - told/imply users that there has more content below
-         * - let user can scroll in mobile device, seeing the keynote-view is unscrollable
-         */
-        $header.style.height = (window.innerHeight-85) + 'px';
-    }
-    document.addEventListener('DOMContentLoaded', function(){
-        resize();
-    })
-    window.addEventListener('load', function(){
-        resize();
-    })
-    window.addEventListener('resize', function(){
-        resize();
-    })
-    resize();
-</script>
 
 
 

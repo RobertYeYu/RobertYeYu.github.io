@@ -5,9 +5,118 @@
     <description></description>
     <link>http://lucida.top/</link>
     <atom:link href="http://lucida.top/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 21 Jun 2016 18:02:41 +0800</pubDate>
-    <lastBuildDate>Tue, 21 Jun 2016 18:02:41 +0800</lastBuildDate>
+    <pubDate>Thu, 23 Nov 2017 10:12:28 +0800</pubDate>
+    <lastBuildDate>Thu, 23 Nov 2017 10:12:28 +0800</lastBuildDate>
     <generator>Jekyll v3.1.6</generator>
+    
+      <item>
+        <title>RxSwift简介</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;“Don’t worry, Be happy ”&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;废话&lt;/h2&gt;
+&lt;p&gt;终于下定决心写一些东西，因为最近总感觉，有一些东西就在嘴边，却怎么也想不起来。所以还是得记下来。烂笔头就这样用起来吧。&lt;/p&gt;
+
+&lt;h2 id=&quot;rxswift&quot;&gt;RxSwift概览&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;RxSwift is a library for composing asynchronous and event-based code by using observable sequences and functional style operators, allowing for parameterized execution via schedulers.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;What！！！
+本来我想翻译一下这句官方定义，但还是算了。但愿有一天我能信心满满的来翻译这一句话。但是，还是有几个点值得一看。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;asynchronous 异步&lt;/li&gt;
+  &lt;li&gt;event-based	 基于事件&lt;/li&gt;
+  &lt;li&gt;observable sequences 这个怎么说呢，反正一切都是sequences&lt;/li&gt;
+  &lt;li&gt;functional 函数式的&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;是不是很fashion，几乎每个点都是当下流行的一本书了&lt;/p&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;异步&lt;/h2&gt;
+&lt;p&gt;在app中，在任一时刻很多事情会同时发生，下载文件，刷新界面，向磁盘写入，等等…
+Cocoa和UIKit中有很多异步API:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;NotificationCenter: 通知&lt;/li&gt;
+  &lt;li&gt;The delegate pattern: 代理模式基本是我们常用的一种数据回传方式&lt;/li&gt;
+  &lt;li&gt;Grand Central Dispatch: GCD可以帮助我们把业务逻辑抽象出来。可以把将这些代码顺序执行，也可以按照优先级在不同的队列上并行执行&lt;/li&gt;
+  &lt;li&gt;Closures: 闭包可以让你把一段代码和上下文的参数传递给别的类，那样，接收到闭包的类就可以决定是否要执行这一段代码，执行多少次以及在特定上下文下执行&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;异步所造成的问题就是，数据会被很多源操作。比如你循环打印一个数组中的元素，那你打印出来的array一定是你传入的array，那如果我每点击一下按钮打印一个元素，那你点第五下的时候，可能数组的第五个元素都被替换甚至删除了。&lt;/p&gt;
+
+&lt;p&gt;另外，UI的刷新必须在主线程上，我们很多时候会忽略这个问题，有的时候tableView刷新，控件的位置错乱，就要看看是不是在主线程上执行的刷新方法了。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;异步术语&lt;/h2&gt;
+&lt;p&gt;### 1. State, and specifically, shared mutable state
+State直白来看就是状态。就像你的电脑，也许刚打开的时候很好用，然而开了两三天之后就卡了。但是硬件还是那样，软件代码也没有变，发生变化了的就是State。&lt;/p&gt;
+
+&lt;p&gt;在内存和硬盘中的数据，对用户输入的反馈，从服务器下载内容留存下的痕迹–所有的这些就组成了电脑的State。&lt;/p&gt;
+
+&lt;p&gt;处理我们app的State，特别是那些当需要在多个异步组件中共享的时候，RxSwift的价值就体现出来了。&lt;/p&gt;
+
+&lt;h3 id=&quot;imperative-programming&quot;&gt;2. Imperative programming&lt;/h3&gt;
+&lt;p&gt;命令式编程
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+override func viewDidAppear(_ animated: Bool) {
+	super.viewDidAppear(animated)
+	setupUI() 
+	connectUIControls()
+	createDataSource() 
+	listenForChanges()
+}
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;典型的命令式编程，在我的代码里几乎随处可见，这种方式从代码上来看，我们根本不知道他做了什么。是否更新了ViewController的属性？最关键是问题是，代码是不是必须按照这个顺序执行？那如果我们要更换其中两个方法的位置，结果会相同么？如果和你搭档的开发同学要在另一个ViewController中用这其中的两个方法，你对其没有任何约束和指导，甚至连信息都不是很明确，谨慎起见，就一定要看里面的实现。&lt;/p&gt;
+
+&lt;h3 id=&quot;side-effects&quot;&gt;3. Side effects&lt;/h3&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Side effects are any change to the state outside of the current scope.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;很简单，举个例子，就像之前的代码，connectUIControls，看这个方法应该是刷新了UI界面，这就是这一行代码的side effects。改变内存中的数据，刷新界面上的label，这些都是side effects。我们的代码就是要来制造这些side effects的，所以，关键在于怎么能保证这些side effects是可控制的。造成的这些影响，都出于你的本意。&lt;/p&gt;
+
+&lt;p&gt;RxSwift被设计来执行这样的事情&lt;/p&gt;
+
+&lt;h3 id=&quot;declarative-code&quot;&gt;4. Declarative code&lt;/h3&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Declarative code lets you define pieces of behavior, and RxSwift will run these behaviors any time there’s a relevant event and provide them an immutable, isolated data input to work with.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;声明式的代码可以定义一种行为(behavior)，只有有相关的事件发生，RxSwift就会接受一组不可变且隔离的数据，来运行这一段代码。&lt;/p&gt;
+
+&lt;p&gt;这种数据形式使得在并行环境下，数据不会相互影响，设计逻辑的时候就可以简单处理，在某代码块中，代码也会顺序执行。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;immutable&lt;/li&gt;
+  &lt;li&gt;isolated&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;reactive-systems&quot;&gt;5. Reactive systems&lt;/h3&gt;
+&lt;p&gt;Reactive systems我们一般翻译成响应式系统，特别抽象，主要包含以下几种特征&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Responsive: 总是让UI保持与数据同步，反映App的最新状态&lt;/li&gt;
+  &lt;li&gt;Resilient: 字面意思是有复原能力的。也就是说每一段描述行为的业务代码(Behavior)都是相互隔离并且可以从错误中恢复并继续执行。&lt;/li&gt;
+  &lt;li&gt;Elastic: 有弹性，可伸缩。就是说一串链式调用的代码处理了工作流上的很多部分，比如拉取数据，处理数据，控制事件等等。比如Worker.loadData.map.delay.shareTo.work&lt;/li&gt;
+  &lt;li&gt;Message driven: 组件之间通过消息机制来传递信息，以提高隔离性和可重用性，从生命周期和具体的类实现中解耦（TODO: 具体怎么讲呢）&lt;/li&gt;
+&lt;/ul&gt;
+
+</description>
+        <pubDate>Mon, 20 Nov 2017 23:00:00 +0800</pubDate>
+        <link>http://lucida.top/2017/11/20/RxSwift-overview/</link>
+        <guid isPermaLink="true">http://lucida.top/2017/11/20/RxSwift-overview/</guid>
+        
+        <category>RxSwift</category>
+        
+        <category>读书笔记</category>
+        
+        
+      </item>
     
       <item>
         <title>Example Post</title>
@@ -743,84 +852,6 @@ Android’s source code is released by Google under open source licenses, althou
         <category>Unix</category>
         
         <category>Linux</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>Welcome to Hux Blog</title>
-        <description>&lt;blockquote&gt;
-  &lt;p&gt;“Yeah It’s on. ”&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;section&quot;&gt;前言&lt;/h2&gt;
-
-&lt;p&gt;Hux 的 Blog 就这么开通了。&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;#build&quot;&gt;跳过废话，直接看技术实现 &lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;2015 年，Hux 总算有个地方可以好好写点东西了。&lt;/p&gt;
-
-&lt;p&gt;作为一个程序员， Blog 这种轮子要是挂在大众博客程序上就太没意思了。一是觉得大部分 Blog 服务都太丑，二是觉得不能随便定制不好玩。之前因为太懒没有折腾，结果就一直连个写 Blog 的地儿都没有。&lt;/p&gt;
-
-&lt;p&gt;在玩了一段时间知乎之后，答题的快感又激起了我开博客的冲动。之前的&lt;a href=&quot;http://huangxuan.me/portfolio&quot;&gt;个人网站&lt;/a&gt;是作品集形式的（现在集成进来了），并不适合用来写博文，一不做二不休，花一天搞一个吧！&lt;/p&gt;
-
-&lt;p id=&quot;build&quot;&gt;&lt;/p&gt;
-&lt;hr /&gt;
-
-&lt;h2 id=&quot;section-1&quot;&gt;正文&lt;/h2&gt;
-
-&lt;p&gt;接下来说说搭建这个博客的技术细节。&lt;/p&gt;
-
-&lt;p&gt;正好之前就有关注过 &lt;a href=&quot;https://pages.github.com/&quot;&gt;GitHub Pages&lt;/a&gt; + &lt;a href=&quot;http://jekyllrb.com/&quot;&gt;Jekyll&lt;/a&gt; 快速 Building Blog 的技术方案，非常轻松时尚。&lt;/p&gt;
-
-&lt;p&gt;其优点非常明显：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;Markdown&lt;/strong&gt; 带来的优雅写作体验&lt;/li&gt;
-  &lt;li&gt;非常熟悉的 Git workflow ，&lt;strong&gt;Git Commit 即 Blog Post&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;利用 GitHub Pages 的域名和免费无限空间，不用自己折腾主机
-    &lt;ul&gt;
-      &lt;li&gt;如果需要自定义域名，也只需要简单改改 DNS 加个 CNAME 就好了&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;Jekyll 的自定制非常容易，基本就是个模版引擎&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;本来觉得最大的缺点可能是 GitHub 在国内访问起来太慢，所以第二天一起床就到 GitCafe(Chinese GitHub Copy) 迁移了一个&lt;a href=&quot;http://huxpro.gitcafe.io&quot;&gt;镜像&lt;/a&gt;出来，结果还是巨慢。&lt;/p&gt;
-
-&lt;p&gt;哥哥可是个前端好嘛！ 果断开 Chrome DevTool 查了下网络请求，原来是 &lt;strong&gt;pending 在了 Google Fonts&lt;/strong&gt; 上，页面渲染一直被阻塞到请求超时为止，难怪这么慢。&lt;br /&gt;
-忍痛割爱，只好把 Web Fonts 去了（反正超时看到的也只能是 fallback ），果然一下就正常了，而且 GitHub 和 GitCafe 对比并没有感受到明显的速度差异，虽然 github 的 ping 值明显要高一些，达到了 300ms，于是用 DNSPOD 优化了一下速度。&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;p&gt;配置的过程中也没遇到什么坑，基本就是 Git 的流程，相当顺手&lt;/p&gt;
-
-&lt;p&gt;大的 Jekyll 主题上直接 fork 了 Clean Blog（这个主题也相当有名，就不多赘述了。唯一的缺点大概就是没有标签支持，于是我给它补上了。）&lt;/p&gt;
-
-&lt;p&gt;本地调试环境需要 &lt;code class=&quot;highlighter-rouge&quot;&gt;gem install jekyll&lt;/code&gt;，结果 rubygem 的源居然被墙了……后来手动改成了我大淘宝的镜像源才成功&lt;/p&gt;
-
-&lt;p&gt;Theme 的 CSS 是基于 Bootstrap 定制的，看得不爽的地方直接在 Less 里改就好了（平时更习惯 SCSS 些），&lt;strong&gt;不过其实我一直觉得 Bootstrap 在移动端的体验做得相当一般，比我在淘宝参与的团队 CSS 框架差多了……&lt;/strong&gt;所以为了体验，也补了不少 CSS 进去&lt;/p&gt;
-
-&lt;p&gt;最后就进入了耗时反而最长的&lt;strong&gt;做图、写字&lt;/strong&gt;阶段，也算是进入了&lt;strong&gt;写博客&lt;/strong&gt;的正轨，因为是类似 Hack Day 的方式去搭这个站的，所以折腾折腾着大半夜就过去了。&lt;/p&gt;
-
-&lt;p&gt;第二天考虑中文字体的渲染，fork 了 &lt;a href=&quot;http://www.typeisbeautiful.com/&quot;&gt;Type is Beautiful&lt;/a&gt; 的 &lt;code class=&quot;highlighter-rouge&quot;&gt;font&lt;/code&gt; CSS，调整了字号，适配了 Win 的渣渲染，中英文混排效果好多了。&lt;/p&gt;
-
-&lt;h2 id=&quot;section-2&quot;&gt;后记&lt;/h2&gt;
-
-&lt;p&gt;回顾这个博客的诞生，纯粹是出于个人兴趣。在知乎相关问题上回答并获得一定的 star 后，我决定把这个博客主题当作一个小小的开源项目来维护。&lt;/p&gt;
-
-&lt;p&gt;在经历 v1.0 - v1.5 的蜕变后，这个博客主题愈发完整，不但增加了诸多 UI 层的优化（opinionated）；在代码层面，更加丰富的配置项也使得这个主题拥有了更好的灵活性与可拓展性。而作为一个开源项目，我也积极的为其完善文档与解决 issue。&lt;/p&gt;
-
-&lt;p&gt;如果你恰好逛到了这里，希望你也能喜欢这个博客主题。&lt;/p&gt;
-
-&lt;p&gt;—— Hux 后记于 2015.10&lt;/p&gt;
-</description>
-        <pubDate>Thu, 29 Jan 2015 20:00:00 +0800</pubDate>
-        <link>http://lucida.top/2015/01/29/hello-2015/</link>
-        <guid isPermaLink="true">http://lucida.top/2015/01/29/hello-2015/</guid>
-        
-        <category>生活</category>
         
         
       </item>
