@@ -263,6 +263,76 @@ override func viewDidAppear(_ animated: Bool) {
   <li>Message driven: 组件之间通过消息机制来传递信息，以提高隔离性和可重用性，从生命周期和具体的类实现中解耦（TODO: 具体怎么讲呢）</li>
 </ul>
 
+<h2 id="rxswift-1">RxSwift的组成基础</h2>
+<p>响应性编程其实并不是一个新的概念，这个概念已经存在了很长时间了。但是他的核心思想在最近十年又流行起来。还有一大段历史，始于微软Rx.NET，然后发展出了RxJS，RxKotlin，RxScala以及我们讨论的RxSwift。</p>
+
+<blockquote>
+  <p>RxSwift finds the sweet spot between traditionally imperative Cocoa code and purist functional code. It allows you to react to events by using immutable code definitions to process asynchronously pieces of input in a deterministic, composable way.</p>
+</blockquote>
+
+<p>RxSwift有三个核心概念，<strong>observables</strong>，<strong>operators</strong>以及<strong>schedulers</strong>。</p>
+
+<h3 id="observables">Observables</h3>
+<p>Observable<T>这个类给Rx提供了基础功能，可以异步产生一个事件队列，携带着T类型数据的一份快照(*“carry” an immutable snapshot of data T*)，简单来说，就是让一个类可以订阅另一个类发射出来的数据。</T></p>
+
+<p>Observable<T>可以让多个观察者实时订阅到事件以更新UI界面。</T></p>
+
+<p>ObservableType <strong><em>protocol</em></strong> (to which the Observable<T> conforms)非常简单。Observable仅仅可以发射三种event，当然observers也仅仅可以收到这三种event</T></p>
+
+<ul>
+  <li><strong>A <em>next</em> event:</strong> 这个事件带着最新的数据。也就是这些观察者（observers）可以收到的值</li>
+  <li><strong>A <em>completed</em> event:</strong> 这个事件会结束事件队列，并且代表成功结束。这意味着Observable正常退出生命周期并且不会再发射任何其他的事件了。</li>
+  <li><strong>An <em>error</em> event:</strong> 同样会结束队列，只不过是异常退出，也不会再发送事件了。</li>
+</ul>
+
+<p>observable sequences有两种，一种是有限的。比如下载文件，下载这种动作总归会停止，成功或者失败，就算是没有响应也应该会超时。而另外一些观察队列，不像下载这种会自然的或者强制的退出，这些队列会一直监听，比如设备是横屏还是竖屏，当我们订阅了这个Device.Observable的这个事件之后，每当我们旋转屏幕的时候，都会受到next event，并且永远不会有<em>completed</em>或者<em>error</em>。</p>
+
+<h3 id="operators">Operators</h3>
+<p><em>ObservableType</em>和<em>Observable</em>类的实现，包含了很多将异步工作分离成一片片的方法，然后通过组合这些方法来完成一个复杂逻辑。因为这些<em>Operator</em>绝大部分都不产生<em>side effects</em>，所以他们可以很容易拼接在一起。</p>
+
+<p>就像（1 + 2）* 3 - 20一样，你可以通过组合操作符来完成更加复杂的运算。
+<code class="highlighter-rouge">
+UIDevice.rx.orientation
+  .filter { value in 
+    return value != .landscape 
+  }
+  .map { _ in
+    return "Portrait is the best!" 
+  } 
+  .subscribe(onNext: { string in
+    showAlert(text: string) 
+  })
+</code></p>
+
+<p><em>operators</em>高度组件化（composable，可以组合），总是接受输入，处理后输出，所以你可以简单的把它们链在一起。这种链式编程表意明确，并且通过组合不同的<em>operators</em>，我们可以实现非常多功能。（Very Handy🤗）</p>
+
+<h3 id="schedulers">Schedulers</h3>
+<p>Schedulers就是Rx里面的<strong>dispatch queues</strong>，更强力，并且用起来更简单。基础用法，比如监听数据变化，更新UI其实都不会过多的接触到Scheduler，这也表明Schedulers为高阶用法，比较强大。</p>
+
+<p>比如你可以指定，在一个<strong>SerialDispatchQueueScheduler</strong>上监听<em>next</em>事件，这会使用<strong>Grand Central Dispatch</strong>去顺序执行你给定的队列。<strong>ConcurrentDispatchQueueScheduler</strong>是并行队列，<strong>OperationQueueScheduler</strong>可以让你指定队列。</p>
+
+<blockquote>
+  <p>Thanks to RxSwift, you can schedule the different pieces of work of the same subscription on different schedulers to achieve the best performance.</p>
+</blockquote>
+
+<p>RxSwift可以在<strong>subscriptions</strong>和<strong>schedulers</strong>直接扮演中间分配器的角色(<strong>dispatcher</strong>)，将任务分配到正确的环境中并且无缝配合起来。</p>
+
+<p><img src="/img/in-post/post-RxSwift/RxSwift_01.png" alt="java-javascript" /></p>
+
+<h2 id="app-architecture">App architecture</h2>
+<p>RxSwift并不会影响你的架构，他大多数情况下只是处理事件(<strong>event</strong>)，异步数据队列(<strong>asynchronous data sequences</strong>)，以及全局的通信链接(<strong>universal communication contract</strong>)。你可以任意选择MVC，MVP，MVVM。</p>
+
+<p>并且RxSwift并不需要顶层设计，在你遇到需要的场景时，用Rx的方法处理业务逻辑就行，所以是渐进的。</p>
+
+<p>虽然并不绑定架构，但是微软设计的MVVM架构专门为数据驱动的软件写法提供数据绑定。RxSwift和MVVM在一起可以配合的很好。之所以配合比较好，是因为ViewModel允许你暴露Observable<T>的属性，这个属性可以用胶水代码在View Controller中直接绑定到UI控件上。</T></p>
+
+<p><img src="/img/in-post/post-RxSwift/RxSwift_02.png" alt="java-javascript" /></p>
+
+<h2 id="rxcocoacommunity">RxCocoa和Community</h2>
+<p>RxCocoa给很多UI控件添加了reactive扩展，这样我们就可以订阅很多UI事件了。</p>
+
+<p>Community就是社区，有很多扩展的代码和React控件，方便好用<a href="http://community.rxswift.org">RxSwift Community Projects</a></p>
+
 
 
                 <hr>
