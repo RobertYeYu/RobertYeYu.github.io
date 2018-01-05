@@ -64,9 +64,95 @@ observable.subscribe { event in
 observable.subscribe(onNext: { element in print(element) })
 ```
 
-Observable<Void>.empty()只发送一个complete事件，之后会立即终止执行。
-Observable<Any>.never()不发生任何事件，永远不停止。
-Observable<Int>.range(start: 1, count: 10)，会发射一系列的数
+- Observable<Void>.empty()只发送一个complete事件，之后会立即终止执行。
+- Observable<Any>.never()不发生任何事件，永远不停止。
+- Observable<Int>.range(start: 1, count: 10)，会发射一系列的数
+
+## Disposing和Terminating
+记住，observable在被订阅之前什么都不做。正是订阅使得observable开始发送事件，直到它发出了一个.error或者.completed事件后终止。你也可以通过手动取消订阅来终止一个observable。
+```
+let observable = Observable.of("A", "B", "C")
+let subscription = observable.subscribe { event in
+	print(event)
+}
+subscription.dispose()
+```
+这样就显式的取消了订阅，这个例子中的observable便会停止发送事件。
+
+当然一个个取消在工程上比较复杂，我们就引入了DisposeBag，只要吧subscribe添加到DisposeBag中，当disposeBag将要被销毁的时候(deallocated)，他将会对其中的每一个subscribe调用dispose()方法，相当于一个统一的处理方法。
+
+```
+let disposeBag = DisposeBag()
+Observable.of("A", "B", "C")
+	.subscribe { print($0) }
+	.disposed(by: disposeBag)
+```
+不调用有可能会导致内存泄露。
+
+你也可以用**create**操作符来指定observable可以发射给订阅者的事件，不仅仅是element哟，create方法能让你指定event。
+
+```
+let disposeBag = DisposeBag()
+Observable<String>.create { observer in
+	observer.onNext("1")
+	observer.onCompleted()
+	observer.onNext("?")
+	return Disposables.create()
+}
+.subscribe( 
+	onNext: { print($0) },
+	onError: { print($0) },
+	onCompleted: { print("Completed") }, 
+	onDisposed: { print("Disposed") } 
+)
+.disposed(by: disposeBag)
+```
+
+上面那个create方法的描述如下
+```
+static func create(_ subscribe: @escaping 
+(AnyObserver<String>) -> Disposable)
+-> Observable<String>
+
+// 更通用的方法声明
+public static func create(_ subscribe: @escaping 
+(RxSwift.AnyObserver<RxSwift.Observable.E>) -> Disposable) 
+-> RxSwift.Observable<RxSwift.Observable.E>
+```
+subscribe参数是一个逃逸闭包，接收一个AnyObserver类型的参数并且返回一个Disposable。AnyObserver是一个用来将事件方便的加入observable队列中的通用类型，然后observable会把事件发生给订阅者。
+
+简单来说，observer就像住在observable中的工人，observable一旦被subscribers订阅，observable就会把observer生产的东西发生给订阅者。
+
+举个例子，observable就像神偷奶爸中的格鲁，observer就像是小黄人...只不过在这里格鲁是一个和平主义者，不会主动去攻击别人，只有当坏人subscribers找上门来，格鲁才会向敌人发射小黄人生产的子弹（或者是各种脑洞大开的武器弹药）。
+
+当然我们可以订阅这个create出来的observable了，还可以订阅它的各种事件。
+
+## 创建observable工厂
+和创建一个observable并等待subscribers来订阅不同的是，我们可以创建一个observable工厂来给每一个订阅者创建一个新的observable。
+
+```
+let disposeBag = DisposeBag()
+var flip = false
+let factory: Observable<Int> = Observable.deferred {
+	flip = !flip
+	if flip {
+		return Observable.of(1, 2, 3) 
+	} else {
+		return Observable.of(4, 5, 6)
+	}
+}
+
+for _ in 0...3 {
+	factory.subscribe(onNext: {
+		print($0, terminator: "") 
+	}) 
+	.disposed(by: disposeBag)
+	print()
+}
+// 打印结果: 123 456 123 456
+```
+打印结果表明，每次都是一个新的observable。也就是说，通过deferred关键字，我们的工厂方法每次都生产出一个新的observable。
+
 
 
 
