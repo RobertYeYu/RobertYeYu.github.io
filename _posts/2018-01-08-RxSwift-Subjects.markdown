@@ -22,9 +22,7 @@ Observables是RxSwift的基础，但是我们在开发中经常需要在运行�
 - Variable: 封装了BehaviorSubject。(preserves its current value as state, and replays only the latest/initial value to new subscribers.)
 
 ## 图解各种Subject
-![java-javascript](/img/in-post/post-RxSwift/RxSwift_Subjects_01.png)
-![java-javascript](/img/in-post/post-RxSwift/RxSwift_Subjects_02.png)
-![java-javascript](/img/in-post/post-RxSwift/RxSwift_Subjects_03.png)
+![java-javascript](/img/in-post/post-RxSwift/RxSwift_Subjects_01.png)![java-javascript](/img/in-post/post-RxSwift/RxSwift_Subjects_02.png)![java-javascript](/img/in-post/post-RxSwift/RxSwift_Subjects_03.png)
 
 这三张图，分别生动形象的说明了PublishSubjects，BehaviorSubjects以及一个有点特别的ReplaySubjects。向上的箭头代表订阅，向下的箭头代表发射数据(ReplaySubjects中间那根线是从一开始就订阅了的)。
 
