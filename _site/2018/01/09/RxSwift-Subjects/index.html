@@ -10,9 +10,9 @@
     <meta name="keyword"  content="">
     <link rel="shortcut icon" href="/img/favicon.ico">
 
-    <title>你的博客 | Shit Happens</title>
+    <title>RxSwift-Subjects - 你的博客 | Shit Happens</title>
 
-    <link rel="canonical" href="http://localhost:4000/404.html">
+    <link rel="canonical" href="http://localhost:4000/2018/01/09/RxSwift-Subjects/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -123,23 +123,226 @@
 </script>
 
 
-    <!-- Page Header -->
-<header class="intro-header" style="background-image: url('/img/404-bg.jpg')">
-	<div class="container">
-		<div class="row">
-			<div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-				<div class="site-heading" id="tag-heading">
-					<h1>404</h1>
-					<span class="subheading">你来到了没有知识的荒原 :(</span>
-				</div>
-			</div>
-		</div>
-	</div>
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-2015.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/img/post-bg-2015.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#RxSwift" title="RxSwift">RxSwift</a>
+                        
+                        <a class="tag" href="/tags/#读书笔记" title="读书笔记">读书笔记</a>
+                        
+                    </div>
+                    <h1>RxSwift-Subjects</h1>
+                    
+                    
+                    <h2 class="subheading"> "RxSwift之Subjects"</h2>
+                    
+                    <span class="meta">Posted by RobertYeYu on January 9, 2018</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </header>
 
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h2 id="引子">引子</h2>
+<p>Observables是RxSwift的基础，但是我们在开发中经常需要在运行时向一个observable添加新值并发射给他的订阅者。所以我们需要一个既能充当<strong>observable</strong>又能充当<strong>observer</strong>的角色(还记得格鲁和小黄人的比喻么)。而这就是我们这篇要说的<strong>Subject</strong>。</p>
+
+<h2 id="什么是subjects">什么是subjects</h2>
+<p>正如前面所说，subjects既是observer，又是observable。所以它既可以发射<em>.next</em>这样的事件，又可以接受订阅。</p>
+
+<ul>
+  <li>PublishSubject: 开始的时候是空的，并且只给订阅者发送新值。也就是说订阅者只能收到订阅之后，PublishSubject发送的值。</li>
+  <li>BehaviorSubject: 开始的时候需要有一个初始值，当接到订阅的时候，会把最新的那个值(有可能是初始值)发送给新的订阅者。</li>
+  <li>Variable: 封装了BehaviorSubject。(preserves its current value as state, and replays only the latest/initial value to new subscribers.)</li>
+</ul>
+
+<h2 id="图解各种subject">图解各种Subject</h2>
+<p><img src="/img/in-post/post-RxSwift/RxSwift_Subjects_01.png" alt="java-javascript" /></p>
+<center>**PublishSubject**</center>
+<p><img src="/img/in-post/post-RxSwift/RxSwift_Subjects_02.png" alt="java-javascript" /></p>
+<center>**BehaviorSubject**</center>
+<p><img src="/img/in-post/post-RxSwift/RxSwift_Subjects_03.png" alt="java-javascript" /></p>
+<center>**ReplaySubjects**</center>
+
+<p>这三张图，分别生动形象的说明了PublishSubjects，BehaviorSubjects以及一个有点特别的ReplaySubjects。向上的箭头代表订阅，向下的箭头代表发射数据(ReplaySubjects中间那根线是从一开始就订阅了的)。</p>
+
+<p>ReplaySubjects只有一点点不同，就是可以设置一个buffer，能缓存若干了值，在新的订阅者订阅的时候，发射给他。</p>
+
+<h2 id="variables">Variables</h2>
+<p>正如之前提到过的，Variable封装了BehaviorSubject并且存储了当前的值(value)。你可以通过<strong>value</strong>属性来获取Variable当前的值，并且，不像别的subjects或者observables，你也可以用这个<strong>value</strong>属性给variable设置新值。换言之，你不用<em>onNext(_:)</em>方法了。</p>
+
+<p>因为他封装了BehaviorSubject，所以variable在创建的时候需要初始值，并且他会replay最近的一个值给订阅者。获得他subject拥有的行为，需要调用他的<strong>asObservable()</strong>方法。</p>
+
+<p>Variable与其他Subject还有一点不同，就是它保证不会发射<em>.error</em>。并且Variable在销毁的时候(deallocated)，它会自动发送一个<em>.complete</em>方法。所以你既不能手动发射<em>.error</em>，也不能手动发射<em>.completed</em>。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var variable = Variable("Initial value")
+let disposeBag = DisposeBag()
+
+variable.value = "New initial value"
+
+variable.asObservable()
+	.subscribe { print(label: "1)", event: $0)} 
+	.disposed(by: disposeBag)
+// 到这里打印: 1) New initial value
+
+variable.value = "1"
+
+variable.asObservable()
+	.subscribe { print(label: "2)", event: $0) }
+	.disposed(by: disposeBag)
+
+variable.value = "2"
+// 到这里打印: 
+1) 1 
+2) 1  
+1) 2
+2) 2
+</code></pre></div></div>
+
+
+
+                <hr>
+
+                
+
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2018/01/04/RxSwift-Observables/" data-toggle="tooltip" data-placement="top" title="RxSwift-Observables">&larr; Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2018/01/11/RxSwift-Operators/" data-toggle="tooltip" data-placement="top" title="RxSwift-Operators">Next Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+
+                
+
+                
+
+            </div>
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+                				<a href="/tags/#RxSwift" title="RxSwift" rel="5">
+                                    RxSwift
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#读书笔记" title="读书笔记" rel="5">
+                                    读书笔记
+                                </a>
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://huangxuan.me">Hux Blog</a></li>
+                    
+                        <li><a href="#">Foo</a></li>
+                    
+                        <li><a href="#">Bar</a></li>
+                    
+                        <li><a href="#">Example Friends</a></li>
+                    
+                        <li><a href="#">It helps SEO</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+
+
+<!-- async load function -->
 <script>
-	document.body.classList.add('page-fullscreen');
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
 </script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("http://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
 
 
     <!-- Footer -->

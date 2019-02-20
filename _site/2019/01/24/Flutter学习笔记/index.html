@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Flutter学习笔记 - 你的博客 | Shit Happens</title>
+
+    <link rel="canonical" href="http://localhost:4000/2019/01/24/Flutter%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="http://cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Shit Happens</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-2015.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/img/post-bg-2015.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                    </div>
+                    <h1>Flutter学习笔记</h1>
+                    
+                    
+                    <h2 class="subheading"> "Flutter学习笔记"</h2>
+                    
+                    <span class="meta">Posted by RobertYeYu on January 24, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h1 id="flutter学习笔记">Flutter学习笔记</h1>
+
+<p>长期以来，移动端被分割为iOS和Android两大阵营，相同的UI和逻辑需要在两端使用不同的编程语言重复实现两次，造成资源的浪费，有时还不得不因为平台的系统控件不一致，在UI效果上进行取舍。从基于Web的跨平台方案，如Cordova，PhoneGap，到React Native，业界也在一直探索，直到如今Flutter的问世。</p>
+
+<p>Flutter是Google推出的一款UI工具包，可以通过一套代码同时在 iOS和Android上构建媲美原生体验的精美应用。它使用Dart作为开发语言，不依赖原生控件，而是将自有的控件库，通过skia图形引擎直接绘制在平台所提供的画布上。本文将逐步介绍Flutter从起源到特性，到工程开发以及打包部署的一些细节。</p>
+
+<ul>
+  <li>跨平台开发探索史</li>
+  <li>FlutterUI工具包的特性</li>
+  <li>Dart编程语言的特性</li>
+  <li>工程开发实践</li>
+  <li>打包部署与发布</li>
+  <li>Flutter未来的规划</li>
+</ul>
+
+<h2 id="1移动跨平台的不断探索">1.移动跨平台的不断探索</h2>
+
+<p>苹果的iOS-SDK发布于2008年，谷歌的Android软件开发工具包发布于2009年，这两种工具包基于不同的编程语言，分别是Objective-C和Java，厂商的商业竞争导致无法使用一个codebase来开发移动应用，而我们在实际开发中又经常强调在不同平台上，要保证一致的UI和交互体验。除此之外，相同的逻辑又要用不同的代码实现两遍，消耗了很多人力成本。等等很多原因，促使我们开始了对跨平台技术的探索。</p>
+
+<h3 id="11-基于webview的实现方案如cordova">1.1 基于WebView的实现方案，如Cordova</h3>
+
+<p>WebView是我们经常使用的，适应性极强，像Cordova这种方案也是基于WebView的封装。但这种方案的缺点在于UI完全由web技术绘制，具有局限性，并且在性能上也不如原生代码。在这种方案中，JS代码为了获取本地的服务资源，如调用摄像头，GPS等，就需要通过JSBridge和本地代码进行通信。但由于次数较少，通信导致的性能下降也没有很明显。</p>
+
+<p><img src="/img/in-post/flutter-note/image-20181205161743961.png" alt="image-20181205161743961" /></p>
+
+<h3 id="12-react-native">1.2 React Native</h3>
+
+<p>从2015年， React Native一直火到现在，很多大厂陆续更近。这个方案的有点在于使用原生控件进行绘制，在App和平台之间建立完整的通信桥梁。其实JS代码和原生代码的执行其实是很快的，而这个方案的问题在于Bridge。JS访问原生的UI组件需要经过“桥接器”（图上的Bridge），当大量UI控件高速刷新的时候，这就有可能导致性能问题。</p>
+
+<p><img src="/img/in-post/flutter-note/image-20181205161804897.png" alt="image-20181205161804897" /></p>
+
+<h3 id="13-flutter的设计思想">1.3 Flutter的设计思想</h3>
+
+<p>讲了一小段历史，我们现在来看看Flutter的设计思想。为了解决对原生控件的依赖，Flutter系统框架使用它自己的UI库，截止2018.12.4发布的1.0-Release版本，Flutter团队和社区用Dart语言写了大概200万行的代码，而里面绝大多数都是UI组件，叫Widget。这些控件最终都会被编译成对应平台的机器代码，使用Skia引擎绘制到原生提供的画布上（图中的Canvas），而Skia就是Android和Chrome的图形引擎，已经在工程上进行过大量的实践了。</p>
+
+<p><img src="/img/in-post/flutter-note/image-20181205161933744.png" alt="image-20181205161933744" /></p>
+
+<h2 id="2fluttersdk特性">2.FlutterSDK特性</h2>
+
+<p>###2.1 全部都是widget</p>
+
+<p>Flutter中的全部控件，包括布局，都是widget。并且用一种神奇的Children方式进行嵌套。</p>
+
+<div class="language-dart highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Expanded</span><span class="o">(</span>
+  <span class="nl">child:</span> <span class="n">Padding</span><span class="o">(</span>
+    <span class="nl">padding:</span> <span class="kd">const</span> <span class="n">EdgeInsets</span><span class="o">.</span><span class="na">symmetric</span><span class="o">(</span><span class="nl">horizontal:</span> <span class="mf">20.0</span><span class="o">),</span>
+      <span class="nl">child:</span> <span class="n">Column</span><span class="o">(</span>
+        <span class="nl">mainAxisAlignment:</span> <span class="n">MainAxisAlignment</span><span class="o">.</span><span class="na">center</span><span class="o">,</span>
+        <span class="nl">crossAxisAlignment:</span> <span class="n">CrossAxisAlignment</span><span class="o">.</span><span class="na">start</span><span class="o">,</span>
+        <span class="nl">children:</span> <span class="o">&lt;</span><span class="n">Widget</span><span class="o">&gt;[</span>
+          <span class="n">Text</span><span class="o">(</span>
+            <span class="n">feed</span><span class="o">.</span><span class="na">nickname</span><span class="o">,</span>
+            <span class="nl">style:</span> <span class="n">Theme</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">context</span><span class="o">)</span>
+              <span class="o">.</span><span class="na">textTheme</span>
+              <span class="o">.</span><span class="na">body1</span>
+              <span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="nl">fontWeightDelta:</span> <span class="mi">700</span><span class="o">),</span>
+          <span class="o">),</span>
+<span class="o">...</span>
+</code></pre></div></div>
+
+<p>Expanded，Padding，Column都是布局控件，Text展示一个昵称名字。不像iOS这样的addsubview，Flutter以children进行嵌套。也许会嵌套很多层，但是这也直观的反映了Flutter app的树状UI结构。另外，Flutter的设计逻辑也不是追求最少的代码，而是快速的开发，使用IDE的工具可以帮助我们快速的生成这些模板代码，让他们一层层套起来。如果你对自己的代码层数忍无可忍了，那很有可能说明部分控件需要抽离，代码结构需要重构。</p>
+
+<p>###2.2 借鉴传承RN的响应式编程模式</p>
+
+<p>Flutter从React中借鉴了大量的灵感，其中就包括响应式视图。<strong>虚拟DOM</strong>，在web视图中代表HTML文档对象模型。JavaScript用DOM提供的API来操作HTML文档。而虚拟DOM使用JS来操作DOM的抽象版本。在响应视图中，虚拟DOM是不可变的，在数据更新以后，会通过算法比较，更新虚拟DOM树，然后以最小的成本重新绘制界面。</p>
+
+<p><img src="/img/in-post/flutter-note/image-20181205163744695.png" alt="image-20181205163744695" /></p>
+
+<p>React Native 也做类似的工作，但是是在移动应用程序当中进行的。它会操控移动平台上的原生组件而不是DOM。它构建一个UI组件的虚拟树，与原生组件进行比较，并只更新已更改的部件。</p>
+
+<p>React Native必须通过桥接器与原生部件进行通信，因此，UI组件的虚拟树机制，可以保证需要通过桥传递的数据最小，同时还允许使用原生部件。最后，一旦更新了本机部件，平台就会将它们渲染到画布上。</p>
+
+<p><img src="/img/in-post/flutter-note/image-20181205163814613.png" alt="image-20181205163814613" /></p>
+
+<p>Flutter中，也很相似，只不过虚拟DOM现在是真实的控件树。</p>
+
+<p><img src="/img/in-post/flutter-note/image-20181205163833650.png" alt="image-20181205163833650" /></p>
+
+<p>###2.3 通过Platform Channel和原生平台通信</p>
+
+<p>最开始的图上可以看到，和原生通信是靠platform channels，来调用摄像头，定位，蓝牙等。这种调用API在使用起来很类似于调用服务器接口。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// dart端调用平台特性代码
+static const platform = const MethodChannel('com.autohome.hawkeye/crypto');
+static Future&lt;String&gt; encrypt(String content) async {
+  String method = Platform.isIOS?'encryptStr:':'encryptStr';
+  var result = await platform.invokeMethod(method,content);
+  if (result == null) {
+    return '';
+  }
+  final Map&lt;dynamic, dynamic&gt; map = result;
+  int code = map['returncode'];
+  if (code!=0){
+    return null;
+  }
+  String contentOfEncrypted = map['result'];
+  return contentOfEncrypted;
+}
+...
+// 需要iOS和Android端分别进行处理
+</code></pre></div></div>
+
+<p>参考：<a href="https://Flutter.io/docs/development/platform-integration/platform-channels">https://Flutter.io/docs/development/platform-integration/platform-channels</a></p>
+
+<h3 id="24-hot-reload">2.4 Hot Reload</h3>
+
+<p>Hot Reload是在开发过程中使用的一种热更新方案。这也是为什么Flutter选择使用Dart编程语言的原因之一，就是因为它既支持OAT也支持JIT。我们在iOS或者android开发中，每当调整代码，哪怕只是更改一个颜色也需要重新编译，而Hot Reload可以在保存代码后直接在界面上重新绘制，可以快速的实验语法，创建UI，更新特性以及修复bug。</p>
+
+<p>Hot Reload在我们保存代码后（IDE可以配置，一保存就Reload），将更新后的代码注入到当前正在运行的Dart Virtual Machine中，在VM更新了类的方法以及属性之后，Flutter的framework就会自动的更新widget tree，然后在界面上快速体现出来。</p>
+
+<p>在HotReload中，有些字段是不会变的。Dart中的静态字段（static fields）是懒加载的，也就是说当第一次run你的Flutter app并且这些个静态字段被初次读取时，他们被初始化成默认或者设置的初始化值，全局变量和静态字段会被当成state，而state在Hot Reload中是不会改变的。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>final sampleTable = [
+  Table("T1"),
+  Table("T2"),
+  Table("T3"),
+  Table("T4"),
+];
+</code></pre></div></div>
+
+<p>改成下面”T10”</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>final sampleTable = [
+  Table("T1"),
+  Table("T2"),
+  Table("T3"),
+  Table("T10"),    // modified
+];
+</code></pre></div></div>
+
+<p>在Hot Reload之后并不会改变。第四个Table还是T4。</p>
+
+<p>而const关键字标注的常量就会在Hot Reload之后改变</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>const foo = 1;
+final bar = foo;
+void onClick() {
+  print(foo);
+  print(bar);
+} // 打印1，1
+
+const foo = 2;    // modified!
+final bar = foo;
+void onClick() {
+  print(foo);
+  print(bar);
+} // 打印2，1
+// 静态字段更像是别名（alias）而不是state
+</code></pre></div></div>
+
+<p>##3.Dart语言特性</p>
+
+<p>有人说Flutter如果用JS开发早就火了，那为什么Google还是选择了Dart呢。除了我们等下要说的一堆优点特性之外，我觉得很重要的原因就是，Dart是Google自己开发并维护的。有一个Flutter开发人员也坦言称：“Dart开发组就坐在我们旁边”。当你开发一个引擎的时候，编程语言可以这么完美的配合你，还有什么拒绝的理由呢。</p>
+
+<h3 id="31-aot--jit">3.1 AOT &amp;&amp; JIT</h3>
+
+<p>从历史上看，计算机编程语言分为静态语言（像C语言这种，变量的类型在编译的时候就确定了），和动态语言（像JS，他们的变量类型可以在运行时更改）。通常静态语言会生成目标机器的机器代码或者汇编语言程序，由机器直接执行，而动态语言由解释器执行。后来为了移植到各个平台，出现了VM这种概念，它其实是一种模拟硬件的高级解释器，而它的输入语言叫做中间语言。这种类型中，最著名的就是Java。</p>
+
+<p>而从编译的时机来说，有JIT（Just In Time）即时编译，就是在程序运行时期编译，以及AOT（Ahead Of Time），也就是提前编译。通常，只有静态语言才能通过AOT方式编译成本地机器代码，因为机器语言一般都需要知道数据的类型，而动态语言在运行之前是不知道类型的。所以动态语言一般都是以JIT的方式进行编译。</p>
+
+<p>在开发的时候使用AOT方式就会导致开发周期比较慢，当然这是显而易见的，因为你要看效果就要等它重新编译（当然也不是全部重新编译）。但是JIT方式在打包发布以后就会显得很笨重，执行超慢，因为JIT编译器需要在执行代码之前进行分析和即时编译。而调研显示，如果你的app打开时间超过3秒，就会有超过25%的用户选择直接卸载。</p>
+
+<p>正如在前面提到的一样，Dart支持AOT（Ahead Of Time）编译，也就是说dart代码可以编译成快速，可预测的机器代码。几乎所有的Flutter自带组件都是用Dart编写的，这样Flutter不仅可以快速启动，系统的widget也都可以对细节进行定制。而对JIT的支持，使得她可以在亚秒级重载，这样设计改样式，产品改文案，你就可以直接改给他看了。</p>
+
+<p>而Dart在编译和执行方面的灵活性不止于此。Dart（ECMA-408）是可以编译成JavaScript，即使是不编译成JavaScript，Google也提供了AngularDart。除此之外，Flutter有一个子项目Hummingbird，它是一个基于 Web 实现的 Flutter 运行时环境。它利用了 Dart 语言能被编译成 JavaScript 的特性。这个项目让 Flutter 应用程序能够无需改动地运行在标准 Web 平台。</p>
+
+<p>最后Dart还提供一个独立的VM，它使用Dart本身作为中间语言。就像Node.js环境，可以用了写一些中台的胶水代码，去调用领域服务。所以才有了像阿里巴巴闲鱼这种全栈Dart的技术团队。</p>
+
+<h3 id="32-抢占式调度时间切片和共享资源">3.2 抢占式调度，时间切片和共享资源</h3>
+
+<p>大多数支持并发编程的语言都使用“抢占式多任务处理(Preemption)”的方式在线程之间进行切换，像Java, Kotlin, Objective-C以及Swift都是这样的。每一个线程会被分配一个“切片”时间来执行，如果超过其分配的时间，就会进行上下文切换（context switch）来抢占线程。如果在更新线程共享资源的时候发生抢占，就会产生竞态条件（Race Condition，它描述一个系统或者进程的输出依赖于不受控制的事件出现的顺序或者出现的时机）。这种问题会导致严重的错误，数据丢失，甚至崩溃。并且更要紧的是，这种错误在调试的时候很难复现，因为他们的发生取决于独立线程的相对时间。一旦你打断点调试，这些问题就不再出现了。</p>
+
+<p>修复竞态条件的典型方法就是添加阻止其他线程访问共享资源的锁来保护他们，但锁本身又复杂易错，可能导致死锁（Deadlock）和饥饿（Starvation）。而Dart没有这个问题，线程在Dart中叫isolate，它不共享内存资源，也就不需要大多数的锁机制。isolate之间则通过一种消息传递机制来进行通信。</p>
+
+<p>除了不共享内存，Dart还是单线程的，所以没有抢占式多任务处理。单线程可以保证重要的功能被优先执行完成，像动画，页面切换这种不会被抢占，以保证页面流畅。</p>
+
+<h3 id="33-allocation和gc">3.3 Allocation和GC</h3>
+
+<p>Dart的垃圾回收使用分代收集（generation collection）的方式，这种方式依照对象存活时间的长短使用不同的垃圾收集算法，以达到最好的收集性能。Java就用这种方式，他将整个堆切割为三个部分：</p>
+
+<ul>
+  <li>Young
+    <ul>
+      <li>Eden：存放新生对象。</li>
+      <li>Survivor：存放经过垃圾回收没有被清除的对象。</li>
+      <li>semi-Spaces：和Survivor做Copying collection。</li>
+    </ul>
+  </li>
+  <li>Tenured：对象多次回收没有被清除，则移到该区块。</li>
+  <li>Perm：存放加载的类别还有方法对象。</li>
+</ul>
+
+<p>绝大部分的对象被分配在Young generation（生命周期短），并且大部分的object在这里被销毁。当Young generation满了之后，将引发minor collection（YGC）。在minor collection后存活的object会被移动到Tenured generation（生命周期比较长）。最后，Tenured generation满之后触发major collection。major collection（Full gc）会触发整个heap的回收，包括回收Young generation。Perm generation区域比较稳定，主要存放class loader信息。</p>
+
+<p>这种方式对于分配很多短周期的对象非常快，非常适合Flutter这种响应式视图，因为它刷新每一帧的时候都会重新创建视图树。这也使得Flutter界面能够保持流畅。</p>
+
+<h2 id="4工程实践">4.工程实践</h2>
+
+<p>###4.1 工程架构</p>
+
+<p>在正式编写代码之前我们需要考虑一下工程架构。Flutter自有的响应式架构已经非常系统了，加上InheritedWidget等一系列的设计，可以让我们非常方便的管理数据的流转和界面的刷新。但是随着工程代码的逐步增加，接口调用增多，埋点的碎片化，等等问题，导致代码越来越混乱，难以管理，出bug的风险急剧上升，KPI分数指数下降，我们就需要某个架构来管理代码。</p>
+
+<p>当然没有最好的架构，只有最合适的，并且某些架构之间有互通的地方。本文就简单介绍一下我们实践过的一个架子，Redux。Redux这种重量级选手很多资料都有所提及，他的设计初衷在于，随着应用复杂度的提高，我们常常需要处理很多来源的数据，从各种接口读取的，从本地数据库读取的等等，场景诸如主页多tab，feed流拼接之类的；另外我们有时还需要保存很多全局状态，在这些状态改变之后，很多页面都需要刷新，比如是否login，主题颜色更改甚至是国际化变更语言。为了解决这些问题，就引入了Redux的第一个设计原则，单一数据源。</p>
+
+<p>Single source of truth：整个app的state都以object tree的形式存在一个store里，就像一个大数据中心，可以在app中的任意位置访问数据，绑定监听。这样在传统编程环境中很难实现的功能，比如撤销/重做这种就很容易实现。</p>
+
+<p>State is read-only：第二个设计原则为，state是只读的，也就是说state不可以直接修改，所有修改行为必须通过发送Action。因为所有State的改变都是集中且按照严格顺序发生的，所以也没有竞态条件。并且action就是普通的dart类，所以他们可以被记录，被序列化，被存储起来，这就使得我们可以在崩溃之前把程序最后的状态报告上来，方便调试，甚至直接redo一下。</p>
+
+<p>Changes are made with pure functions：上面提到的Action只是定义一个行为，Reducer才是执行者。第三个设计原则就是，Reducer是纯函数，所谓纯函数就是没有副作用（side effect），只进行计算或者调用其他纯函数。他接收一个action和一个旧的state，然后返回新的state。Reducer可以根据项目的大小分层级，app启动的时候添加一个reducer，之后可以拆分成很多小的reducer来管理state树的各个模块。</p>
+
+<p><img src="/img/in-post/flutter-note/redux.png" alt="redux" /></p>
+
+<p>关于Redux编码的细节可以单独写一本书，作者水平有限就不再赘述，感兴趣的同学可以通过文末的链接找到很多相关的资料。</p>
+
+<h3 id="42-widget介绍">4.2 widget介绍</h3>
+
+<p>正如之前所说，在flutter中一切界面元素都是widget，包括Layout布局，动画，输入框，图片，列表等等，甚至应用程序本身也是一个widget。具体的大家可以直接查阅文档，本文列举几个常用的且重要的widget进行介绍。</p>
+
+<h4 id="421-layout">4.2.1 Layout</h4>
+
+<p>在flutter中<strong>Layout</strong>基于“盒子原则”进行布局，每一个控件都可以想象成一个矩形盒子，然后盒子套盒子，就成了一个新盒子（^~^）。最常用的布局widget就是Container，作为最基础的盒子，他可以设置约束，颜色，对其方式等等。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Container(
+  constraints: BoxConstraints.expand(
+    height: Theme.of(context).textTheme.display1.fontSize * 1.1 + 200.0,
+  ),
+  padding: const EdgeInsets.all(8.0),
+  color: Colors.teal.shade700,
+  alignment: Alignment.center,
+  child: Text('Hello World', style: Theme.of(context).textTheme.display1.copyWith(color: Colors.white)),
+  foregroundDecoration: BoxDecoration(
+    image: DecorationImage(
+      image: NetworkImage('https://www.example.com/images/frame.png'),
+      centerSlice: Rect.fromLTRB(270.0, 180.0, 1360.0, 730.0),
+    ),
+  ),
+  transform: Matrix4.rotationZ(0.1),
+)
+</code></pre></div></div>
+
+<p>另外像Padding，Center，Align，AspectRatio等等widget都可以单独设置。</p>
+
+<p>除了Single-child layout widgets，还有Multi-child layout widgets，也就是有多个子元素的布局widget。横排的是Row，纵排的为Column，叠起来的叫作Stack，还有网格的GridView等等。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  mainAxisSize: MainAxisSize.min,
+  children: &lt;Widget&gt;[
+    Text('We move under cover and we move as one'),
+    Text('Through the night, we have one shot to live another day'),
+    Text('We cannot let a stray gunshot give us away'),
+    Text('We will fight up close, seize the moment and stay in it'),
+    Text('It’s either that or meet the business end of a bayonet'),
+    Text('The code word is ‘Rochambeau,’ dig me?'),
+    Text('Rochambeau!', style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 2.0)),
+  ],
+)
+</code></pre></div></div>
+
+<p>其中mainAxisAlignment就是主轴方向布局，对于Column主轴就是竖的，对于Row主轴就是横的。crossAxisAlignment则为垂直轴布局，所谓垂直轴就是和主轴成90度角垂直的轴，对于Column来说就是横向轴了。</p>
+
+<h4 id="422-textimage等等">4.2.2 Text，Image等等</h4>
+
+<p>除了布局元素，控件元素按照设计风格分为两大类，Material Components和Cupertino，分别对应Google设计元素和iOS风格元素，也就是说，在Flutter中也可以用iOS比较经典的样式，比如ActionSheet，AlertView，DataPicker等等，当然这些都是直接由flutter框架原生实现的仿制品，不借助于系统平台的OEM组件。</p>
+
+<p>说到Image这里有一个点需要注意，在使用本地图片的时候，除了把图片文件拖入到工程中，还需要在yaml中添加如下内容</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># pubspec.yaml
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  # assets:
+  #  - images/a_dot_burr.jpeg
+  #  - images/a_dot_ham.jpeg
+</code></pre></div></div>
+
+<p>诸如这样才能在Image控件中加载到image文件。</p>
+
+<p>widget相关的内容可以参考官方文档<a href="https://flutter.io/docs/development/ui/widgets">https://flutter.io/docs/development/ui/widgets</a></p>
+
+<h3 id="43-实践中遇到的问题">4.3 实践中遇到的问题</h3>
+
+<p>因为flutter还处于起步阶段，12月初才刚刚发布了1.0正式版，在Git上还有4000+的issue，但是在这个阶段，Google的开发者就更愿意倾听来自社区的声音，发现的问题也在Git上进行讨论，我自己就在Git上提过一个问题，得到了很多开发者的回复，瞬间感觉被世界所拥抱。所以在这里，我们遇到的或者看到的问题，以及目前不完善的地方也逐一和大家分享。</p>
+
+<h4 id="431-无反射的json序列化">4.3.1 无反射的json序列化</h4>
+
+<p>Flutter的json解析使用<em>dart:convert</em>中内置的解码器，只要传入JSON的原始字符串给<em>JSON.decode()</em>方法，然后从返回的<em>Map&lt;String, dynamic&gt;</em>中取你要的数据就行了。当需要用Map生成Model对象的时候，需要在Model中添加fromJson方法，通过调用方法实现来逐一取出Map中的值填充到对象中。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class FeedModel {
+  List imglist;
+  int commentnum;
+
+  FeedModel(this.imglist, this.commentnum)
+  
+  FeedModel.fromJson(Map&lt;String, dynamic&gt; json)
+      : imglist = json['imglist'],
+        commentnum = json['commentnum'];
+}
+</code></pre></div></div>
+
+<p>在大型工程中，这种方式就略显笨拙，Flutter有一个工具来批量生成fromJson方法。需要我们使用一个叫json_annotation的库，并在yaml文件中引入以下配置：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dependencies:
+  flutter:
+    sdk: flutter
+  json_annotation: ^2.0.0
+  ...
+dev_dependencies:
+...
+  build_runner: ^1.1.2
+  json_serializable: ^2.0.0
+  ...
+</code></pre></div></div>
+
+<p>json_annotation可以让你在Model类中进行标记，有点像JavaSpring，build_runner和json_serializable是两个“dev_dependencies”，就是说在正式发布的时候并不包含这两个库，他们只是用来辅助开发的工具。在引入json_annotation.dart之后，我们就可以改造一下Model类了</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// feed_model.dart
+@JsonSerializable()
+class FeedModel {
+  List imglist;
+  int commentnum;
+
+  FeedModel(this.imglist, this.commentnum)
+  
+  factory FeedModel.fromJson(Map&lt;String, dynamic&gt; json) =&gt;
+      _$FeedModelFromJson(json);
+}
+</code></pre></div></div>
+
+<p>在类的开头添加JsonSerializable标记，如果json中字段名字和类的属性名称不一致，还需要在属性前添加@JsonKey(name: ‘name_in_json’)标记。然后在控制台运行flutter packages pub run build_runner build命令，就会生成一个feed_model.g.dart的文件</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'feed_model.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+FeedModel _$FeedModelFromJson(Map&lt;String, dynamic&gt; json) {
+  return FeedModel(
+      json['imglist'] as List,
+      json['commentnum'] as int,
+}
+</code></pre></div></div>
+
+<p>这样就自动生成了一部分模版代码。虽然这非常方便，但如果我们每次在模型类中进行更改时都不需要手动地运行构建，那就更好了。为了持续地生成代码，我们需要用到watcher工具。它会监控我们项目文件的改变并在需要的时候自动编译那些必要的文件。我们可以在项目根目录下运行flutter packages pub run build_runner watch来启动watcher。这样在我们更改了Model类之后，他就能自动生成匹配的.g.dart文件了。</p>
+
+<p>但也仅仅如此了。为什么这么说呢，因为我们在flutter中无法使用GSON/Jackson之类的库，这些库需要用到运行时的反射机制，而这在Flutter中是被禁用的。</p>
+
+<p>为什么反射被禁用呢？正如我们之前所说，FlutterUI工具包会被打包在每一个App中，也就是说，开发者只写一个HelloWorld程序，Flutter也需要在包中添加很多相应的支持库，这就导致Flutter对优化应用大小格外关注。为了优化应用大小，以及在发布版本中“摆脱”一些无用的代码，Dart支持<strong>tree shaking</strong>特性。Tree Shaking顾名思义就是摇树，就是把树上一些没用的东西摇掉，特别形象。Flutter的结构本质上就是一棵Widget树，自main方法以下，引入了很多文件，依赖了很多模块，但在实际情况中，虽然依赖了某个模块，但其实只使用其中的部分功能，通过tree shaking摇掉没用的模块功能，来删除无用代码。而运行时反射干涉了tree shaking，因为反射默认隐式地调用所有代码，这让tree shaking变得困难。工具无法知道哪些部分在运行时未使用，以至于多余的代码很难被清理掉。所以在使用反射时，应用大小不容易被优化，这个特性就被禁用了。</p>
+
+<h4 id="432-视频外接纹理">4.3.2 视频外接纹理</h4>
+
+<p>视频外接纹理是阿里巴巴闲鱼团队遇到的一个非常有价值的问题。正如最开始所说，Flutter Engine和Native之间通过Platform Channel机制进行通信，正如所有桥接机制一样，在Flutter侧需要一些Native侧高内存占用图像的时候，（比如摄像头帧，视频帧），用于图像等数据的传输必然引起内存和CPU的巨大消耗。为此，Flutter提供了一个特殊的Widget，Texture。</p>
+
+<p>首先，纹理Texture在物理上指的是GPU显存中一段连续的空间，可以理解为GPU内代表图像数据的一个对象，他有一些属性，比如高度、宽度、色彩通道数量。其次，Flutter中Texture Widget就是一个可以由Native平台渲染并填充纹理的一块矩形区域。而填充纹理的方式，就是使用一个共享的PixelBuffer。Native端将摄像头获取的数据（或者视频帧之类的），直接写入到PixelBuffer中，Flutter通过copyPixelBuffer方法拿到PixelBuffer以后转成OpenGLES Texture，交由Skia绘制。</p>
+
+<p>但是在实际工程中，很多情况在Native侧需要通过GPU对视频图像数据进行处理，比如美颜，也就是说在进入PixelBuffer之前已经生成GPU纹理Texture了，然后又要通过CPU计算加入到PixelBuffer中，之后再通过Flutter引擎调用，转化为Texture，<strong>GPU-&gt;CPU-&gt;GPU</strong>这就造成了浪费，并且CPU和GPU的内存交换是所有操作里面最耗时的。</p>
+
+<p><img src="/img/in-post/flutter-note/buffer.png" alt="buffer" /></p>
+
+<p>为了让Flutter侧直接读取到Native侧的Texture，闲鱼团队做了一个<strong>ShareGroup</strong>的露出。</p>
+
+<p>在说ShareGroup之前，需要简单说一下Flutter的线程机制。通常情况下，Flutter创建4个Runner，UI Runner、GPU Runner、IO Runner和Platform Runner，一个Runner对应一个线程，Platform Runner跑在主线程上。使用OpenGL的app在线程设计上都会有一个线程负责加载资源，一个线程负责渲染。但是为了能让负责加载的线程创建出的Texture，给负责渲染的线程使用，两个线程会共用一个EAGLContext。正如之前介绍Dart设计原理的时候提到的一样，共享资源是不安全的，而加锁的话不仅影响速度还会有死锁饥饿等问题。因此Flutter在EAGLContext的使用上使用了另一种机制：两个线程各自使用自己的EAGLContext，彼此通过<strong>ShareGroup</strong>（android为shareContext）来共享纹理数据。</p>
+
+<p>而Native侧在使用OpenGL的模块时也会在自己线程下创建EAGLContext，闲鱼团队就是让ShareGroup露出给Native侧，然后在Native侧保存这个ShareGroup，当Native创建Context时，就使用这个ShareGroup进行创建。这样，利用Flutter原有的线程共享资源机制，打通了和Native线程共享资源的能力。</p>
+
+<p>闲鱼外接纹理原文：<a href="https://juejin.im/post/5b7b9051e51d45388b6aeceb">https://juejin.im/post/5b7b9051e51d45388b6aeceb</a></p>
+
+<p>[注]An <code class="highlighter-rouge">EAGLContext</code> object manages an OpenGL ES <em>rendering context</em>—the state information, commands, and resources needed to draw using OpenGL ES.  EAGLContext对象管理OpenGL ES渲染所需的上下文环境。包括OpenGL ES绘制所需的状态信息，命令和资源。</p>
+
+<h2 id="5编译打包">5.编译打包</h2>
+
+<p>实际上，Flutter下的iOS和android工程依然是一个普通的iOS/android工程，Flutter只是通过在BuildPhase添加shell脚本来自动生成和嵌入App.framework和Flutter.framework（iOS），通过gradle来添加Flutter.jar和vm/isolate_snapshot_data/instr(Android)来将Flutter相关代码编译和嵌入原生App而已。</p>
+
+<p>对于Flutter而言，他支持基本的编译模式，常见的Debug，Release和Profile，这几种模式又各有不同：</p>
+
+<p>Debug模式可以在真机和模拟器上同时运行：会打开所有的断言，包括debugging信息、调试辅助工具（debugger aids，比如observatory）和服务扩展。优化了快速develop/run循环，但是没有优化执行速度、二进制大小和部署。命令Flutter run就是以这种模式运行的。</p>
+
+<p>Release模式只能在真机上运行，不能在模拟器上运行：会关闭所有断言和debugging信息，关闭所有debugger工具。优化了快速启动、快速执行和减小包体积。禁用所有的debugging aids和服务扩展。这个模式是为了部署给最终的用户使用。命令Flutter run –release就是以这种模式运行的。</p>
+
+<p>Profile模式只能在真机上运行，不能在模拟器上运行：基本和Release模式一致，除了启用了服务扩展和tracing，以及一些为了最低限度支持tracing运行的东西（比如可以连接observatory到进程）。命令Flutter run –profile就是以这种模式运行的，因为模拟器不能代表真实场景，所以不能在模拟器上运行。</p>
+
+<p>对于iOS来说，打包只需要在工程目录下执行flutter build ios命令，之后打开Xcode，按照普通工程Archive的步骤进行就可以了，Android类似。</p>
+
+<p>iOS打包方法<a href="https://flutter.io/docs/deployment/ios">https://flutter.io/docs/deployment/ios</a></p>
+
+<p>Android打包方法<a href="https://flutter.io/docs/deployment/android">https://flutter.io/docs/deployment/android</a></p>
+
+<p>编译细节参考闲鱼的这篇文章<a href="https://www.yuque.com/xytech/Flutter/sh4fbm#8dh0zl">https://www.yuque.com/xytech/Flutter/sh4fbm#8dh0zl</a></p>
+
+<h2 id="6flutter未来的计划">6.Flutter未来的计划</h2>
+
+<p>2018年12月初，Flutter发布1.0版本，github上也增加了stable通道。1.0版本提供了一些全新的iOS风格widget，优化了很多git上提出的issue，另外接入了近20种Firebase服务（目前国内还不能用，但据说在和腾讯磋商），同时优化了性能，减少了包体积。除此之外Dart也更新到了2.1，提供更快的类型检查以及错误提示。</p>
+
+<p>为了更好的使用Flutter框架，项目组也计划在2019年二月提供更好的工具链，以方便开发者将Flutter引入到现有的工程中，因为毕竟不是每个团队都有机会从头使用Flutter构建项目的。</p>
+
+<p>上面提到的Add to App功能非常适合于逐渐引入Flutter到现有应用中，但有时候我们反倒需要将Android或iPhone平台的控件嵌入到Flutter应用当中。所以Flutter团队引入了AndroidView和UiKitView这两个平台级视图的widget到Flutter中，这样就可以将它们分别嵌入到指定的平台。之前我们使用一个原生页面，比如百度地图，就必须弹出一个纯原生页，上面添加UI比如按钮文字什么的，都需要iOS和android分别用原生实现。有了平台级视图widget，我们就可以把两端分别实现的控件包装起来（如百度地图，因为百度地图短时间不会提供Flutter插件，所以还是要两端分别接入SDK），然后在Flutter中以widget的形式插入到视图中，然后在上面添加其他的widget，Flutter的文字按钮之类的，以达到多端共用一套代码的目的。</p>
+
+<p>除了移动端，Flutter还有一个处于实验中的内部项目-Hummingbird。他是一个基于 Web 实现的 Flutter 运行时环境。它利用了 Dart 语言能被编译成 JavaScript 的特性。这个项目让 Flutter 应用程序能够无需改动地运行在标准 Web 平台。除了web端，Google还在开发一个新的操作系统，叫作Fuchsia，和基于Linux内核的Chrome OS以及Android不同，Fuchsia基于一个叫作Zircon的微内核。设计目标之一是可运行在众多的设备上，包括移动电话和个人计算机。而Fuchsia的用户界面和应用程序，都是用Flutter编写的。</p>
+
+<p>总而言之，Flutter作为Google推出的专注但不限于移动端的UI引擎框架，在提高工作效率，创建精美的UI界面上，不断探索前进。而对于我们程序员说，可以尝试新的开发模式，接触新的设计思想，在Git上和全球开发者讨论问题，研读源码，也是很有意思的事，不是么？</p>
+
+<h2 id="7参考资料">7.参考资料</h2>
+
+<p>1.闲鱼关于Flutter的文章，很硬核：<a href="https://www.yuque.com/xytech/flutter">https://www.yuque.com/xytech/flutter</a></p>
+
+<p>2.Flutter架构示例，其中就包括Redux：<a href="http://fluttersamples.com/">http://fluttersamples.com/</a></p>
+
+<p>3.Flutter官网：<a href="https://flutter.io/">https://flutter.io/</a></p>
+
+<p>4.以及Git主页：<a href="https://github.com/flutter">https://github.com/flutter</a></p>
+
+
+
+                <hr>
+
+                
+
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2018/01/17/RxCocoa/" data-toggle="tooltip" data-placement="top" title="RxCocoa">&larr; Previous Post</a>
+                    </li>
+                    
+                    
+                </ul>
+
+
+                
+
+                
+
+            </div>
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+                				<a href="/tags/#RxSwift" title="RxSwift" rel="5">
+                                    RxSwift
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#读书笔记" title="读书笔记" rel="5">
+                                    读书笔记
+                                </a>
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://huangxuan.me">Hux Blog</a></li>
+                    
+                        <li><a href="#">Foo</a></li>
+                    
+                        <li><a href="#">Bar</a></li>
+                    
+                        <li><a href="#">Example Friends</a></li>
+                    
+                        <li><a href="#">It helps SEO</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("http://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+                    <li>
+                        <a target="_blank" href="http://weibo.com/RobertYeYu">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/RobertYeYu">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; Shit Happens 2019
+                    <br>
+                    Theme by <a href="http://huangxuan.me">Hux</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=huxpro&repo=huxpro.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("http://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-49627206-1';
+    var _gaDomain = 'huangxuan.me';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4cc1f2d8f3067386cc5cdb626a202900';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

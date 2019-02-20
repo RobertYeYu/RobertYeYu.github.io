@@ -3,11 +3,894 @@
   <channel>
     <title>Shit Happens</title>
     <description></description>
-    <link>http://lucida.top/</link>
-    <atom:link href="http://lucida.top/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 24 Nov 2017 11:30:12 +0800</pubDate>
-    <lastBuildDate>Fri, 24 Nov 2017 11:30:12 +0800</lastBuildDate>
-    <generator>Jekyll v3.1.6</generator>
+    <link>http://localhost:4000/</link>
+    <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Thu, 24 Jan 2019 18:06:39 +0800</pubDate>
+    <lastBuildDate>Thu, 24 Jan 2019 18:06:39 +0800</lastBuildDate>
+    <generator>Jekyll v3.8.5</generator>
+    
+      <item>
+        <title>Flutter学习笔记</title>
+        <description>&lt;h1 id=&quot;flutter学习笔记&quot;&gt;Flutter学习笔记&lt;/h1&gt;
+
+&lt;p&gt;长期以来，移动端被分割为iOS和Android两大阵营，相同的UI和逻辑需要在两端使用不同的编程语言重复实现两次，造成资源的浪费，有时还不得不因为平台的系统控件不一致，在UI效果上进行取舍。从基于Web的跨平台方案，如Cordova，PhoneGap，到React Native，业界也在一直探索，直到如今Flutter的问世。&lt;/p&gt;
+
+&lt;p&gt;Flutter是Google推出的一款UI工具包，可以通过一套代码同时在 iOS和Android上构建媲美原生体验的精美应用。它使用Dart作为开发语言，不依赖原生控件，而是将自有的控件库，通过skia图形引擎直接绘制在平台所提供的画布上。本文将逐步介绍Flutter从起源到特性，到工程开发以及打包部署的一些细节。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;跨平台开发探索史&lt;/li&gt;
+  &lt;li&gt;FlutterUI工具包的特性&lt;/li&gt;
+  &lt;li&gt;Dart编程语言的特性&lt;/li&gt;
+  &lt;li&gt;工程开发实践&lt;/li&gt;
+  &lt;li&gt;打包部署与发布&lt;/li&gt;
+  &lt;li&gt;Flutter未来的规划&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;1移动跨平台的不断探索&quot;&gt;1.移动跨平台的不断探索&lt;/h2&gt;
+
+&lt;p&gt;苹果的iOS-SDK发布于2008年，谷歌的Android软件开发工具包发布于2009年，这两种工具包基于不同的编程语言，分别是Objective-C和Java，厂商的商业竞争导致无法使用一个codebase来开发移动应用，而我们在实际开发中又经常强调在不同平台上，要保证一致的UI和交互体验。除此之外，相同的逻辑又要用不同的代码实现两遍，消耗了很多人力成本。等等很多原因，促使我们开始了对跨平台技术的探索。&lt;/p&gt;
+
+&lt;h3 id=&quot;11-基于webview的实现方案如cordova&quot;&gt;1.1 基于WebView的实现方案，如Cordova&lt;/h3&gt;
+
+&lt;p&gt;WebView是我们经常使用的，适应性极强，像Cordova这种方案也是基于WebView的封装。但这种方案的缺点在于UI完全由web技术绘制，具有局限性，并且在性能上也不如原生代码。在这种方案中，JS代码为了获取本地的服务资源，如调用摄像头，GPS等，就需要通过JSBridge和本地代码进行通信。但由于次数较少，通信导致的性能下降也没有很明显。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/in-post/flutter-note/image-20181205161743961.png&quot; alt=&quot;image-20181205161743961&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;12-react-native&quot;&gt;1.2 React Native&lt;/h3&gt;
+
+&lt;p&gt;从2015年， React Native一直火到现在，很多大厂陆续更近。这个方案的有点在于使用原生控件进行绘制，在App和平台之间建立完整的通信桥梁。其实JS代码和原生代码的执行其实是很快的，而这个方案的问题在于Bridge。JS访问原生的UI组件需要经过“桥接器”（图上的Bridge），当大量UI控件高速刷新的时候，这就有可能导致性能问题。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/in-post/flutter-note/image-20181205161804897.png&quot; alt=&quot;image-20181205161804897&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;13-flutter的设计思想&quot;&gt;1.3 Flutter的设计思想&lt;/h3&gt;
+
+&lt;p&gt;讲了一小段历史，我们现在来看看Flutter的设计思想。为了解决对原生控件的依赖，Flutter系统框架使用它自己的UI库，截止2018.12.4发布的1.0-Release版本，Flutter团队和社区用Dart语言写了大概200万行的代码，而里面绝大多数都是UI组件，叫Widget。这些控件最终都会被编译成对应平台的机器代码，使用Skia引擎绘制到原生提供的画布上（图中的Canvas），而Skia就是Android和Chrome的图形引擎，已经在工程上进行过大量的实践了。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/in-post/flutter-note/image-20181205161933744.png&quot; alt=&quot;image-20181205161933744&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;2fluttersdk特性&quot;&gt;2.FlutterSDK特性&lt;/h2&gt;
+
+&lt;p&gt;###2.1 全部都是widget&lt;/p&gt;
+
+&lt;p&gt;Flutter中的全部控件，包括布局，都是widget。并且用一种神奇的Children方式进行嵌套。&lt;/p&gt;
+
+&lt;div class=&quot;language-dart highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;Expanded&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;child:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Padding&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;padding:&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;EdgeInsets&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;symmetric&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;horizontal:&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;20.0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;),&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;child:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Column&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+        &lt;span class=&quot;nl&quot;&gt;mainAxisAlignment:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MainAxisAlignment&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;center&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;nl&quot;&gt;crossAxisAlignment:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;CrossAxisAlignment&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;nl&quot;&gt;children:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Widget&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;[&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;feed&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;nickname&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;nl&quot;&gt;style:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Theme&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+              &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;textTheme&lt;/span&gt;
+              &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;body1&lt;/span&gt;
+              &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;apply&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;fontWeightDelta:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;700&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;),&lt;/span&gt;
+          &lt;span class=&quot;o&quot;&gt;),&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Expanded，Padding，Column都是布局控件，Text展示一个昵称名字。不像iOS这样的addsubview，Flutter以children进行嵌套。也许会嵌套很多层，但是这也直观的反映了Flutter app的树状UI结构。另外，Flutter的设计逻辑也不是追求最少的代码，而是快速的开发，使用IDE的工具可以帮助我们快速的生成这些模板代码，让他们一层层套起来。如果你对自己的代码层数忍无可忍了，那很有可能说明部分控件需要抽离，代码结构需要重构。&lt;/p&gt;
+
+&lt;p&gt;###2.2 借鉴传承RN的响应式编程模式&lt;/p&gt;
+
+&lt;p&gt;Flutter从React中借鉴了大量的灵感，其中就包括响应式视图。&lt;strong&gt;虚拟DOM&lt;/strong&gt;，在web视图中代表HTML文档对象模型。JavaScript用DOM提供的API来操作HTML文档。而虚拟DOM使用JS来操作DOM的抽象版本。在响应视图中，虚拟DOM是不可变的，在数据更新以后，会通过算法比较，更新虚拟DOM树，然后以最小的成本重新绘制界面。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/in-post/flutter-note/image-20181205163744695.png&quot; alt=&quot;image-20181205163744695&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;React Native 也做类似的工作，但是是在移动应用程序当中进行的。它会操控移动平台上的原生组件而不是DOM。它构建一个UI组件的虚拟树，与原生组件进行比较，并只更新已更改的部件。&lt;/p&gt;
+
+&lt;p&gt;React Native必须通过桥接器与原生部件进行通信，因此，UI组件的虚拟树机制，可以保证需要通过桥传递的数据最小，同时还允许使用原生部件。最后，一旦更新了本机部件，平台就会将它们渲染到画布上。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/in-post/flutter-note/image-20181205163814613.png&quot; alt=&quot;image-20181205163814613&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Flutter中，也很相似，只不过虚拟DOM现在是真实的控件树。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/in-post/flutter-note/image-20181205163833650.png&quot; alt=&quot;image-20181205163833650&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;###2.3 通过Platform Channel和原生平台通信&lt;/p&gt;
+
+&lt;p&gt;最开始的图上可以看到，和原生通信是靠platform channels，来调用摄像头，定位，蓝牙等。这种调用API在使用起来很类似于调用服务器接口。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// dart端调用平台特性代码
+static const platform = const MethodChannel('com.autohome.hawkeye/crypto');
+static Future&amp;lt;String&amp;gt; encrypt(String content) async {
+  String method = Platform.isIOS?'encryptStr:':'encryptStr';
+  var result = await platform.invokeMethod(method,content);
+  if (result == null) {
+    return '';
+  }
+  final Map&amp;lt;dynamic, dynamic&amp;gt; map = result;
+  int code = map['returncode'];
+  if (code!=0){
+    return null;
+  }
+  String contentOfEncrypted = map['result'];
+  return contentOfEncrypted;
+}
+...
+// 需要iOS和Android端分别进行处理
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;参考：&lt;a href=&quot;https://Flutter.io/docs/development/platform-integration/platform-channels&quot;&gt;https://Flutter.io/docs/development/platform-integration/platform-channels&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;24-hot-reload&quot;&gt;2.4 Hot Reload&lt;/h3&gt;
+
+&lt;p&gt;Hot Reload是在开发过程中使用的一种热更新方案。这也是为什么Flutter选择使用Dart编程语言的原因之一，就是因为它既支持OAT也支持JIT。我们在iOS或者android开发中，每当调整代码，哪怕只是更改一个颜色也需要重新编译，而Hot Reload可以在保存代码后直接在界面上重新绘制，可以快速的实验语法，创建UI，更新特性以及修复bug。&lt;/p&gt;
+
+&lt;p&gt;Hot Reload在我们保存代码后（IDE可以配置，一保存就Reload），将更新后的代码注入到当前正在运行的Dart Virtual Machine中，在VM更新了类的方法以及属性之后，Flutter的framework就会自动的更新widget tree，然后在界面上快速体现出来。&lt;/p&gt;
+
+&lt;p&gt;在HotReload中，有些字段是不会变的。Dart中的静态字段（static fields）是懒加载的，也就是说当第一次run你的Flutter app并且这些个静态字段被初次读取时，他们被初始化成默认或者设置的初始化值，全局变量和静态字段会被当成state，而state在Hot Reload中是不会改变的。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;final sampleTable = [
+  Table(&quot;T1&quot;),
+  Table(&quot;T2&quot;),
+  Table(&quot;T3&quot;),
+  Table(&quot;T4&quot;),
+];
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;改成下面”T10”&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;final sampleTable = [
+  Table(&quot;T1&quot;),
+  Table(&quot;T2&quot;),
+  Table(&quot;T3&quot;),
+  Table(&quot;T10&quot;),    // modified
+];
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;在Hot Reload之后并不会改变。第四个Table还是T4。&lt;/p&gt;
+
+&lt;p&gt;而const关键字标注的常量就会在Hot Reload之后改变&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;const foo = 1;
+final bar = foo;
+void onClick() {
+  print(foo);
+  print(bar);
+} // 打印1，1
+
+const foo = 2;    // modified!
+final bar = foo;
+void onClick() {
+  print(foo);
+  print(bar);
+} // 打印2，1
+// 静态字段更像是别名（alias）而不是state
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;##3.Dart语言特性&lt;/p&gt;
+
+&lt;p&gt;有人说Flutter如果用JS开发早就火了，那为什么Google还是选择了Dart呢。除了我们等下要说的一堆优点特性之外，我觉得很重要的原因就是，Dart是Google自己开发并维护的。有一个Flutter开发人员也坦言称：“Dart开发组就坐在我们旁边”。当你开发一个引擎的时候，编程语言可以这么完美的配合你，还有什么拒绝的理由呢。&lt;/p&gt;
+
+&lt;h3 id=&quot;31-aot--jit&quot;&gt;3.1 AOT &amp;amp;&amp;amp; JIT&lt;/h3&gt;
+
+&lt;p&gt;从历史上看，计算机编程语言分为静态语言（像C语言这种，变量的类型在编译的时候就确定了），和动态语言（像JS，他们的变量类型可以在运行时更改）。通常静态语言会生成目标机器的机器代码或者汇编语言程序，由机器直接执行，而动态语言由解释器执行。后来为了移植到各个平台，出现了VM这种概念，它其实是一种模拟硬件的高级解释器，而它的输入语言叫做中间语言。这种类型中，最著名的就是Java。&lt;/p&gt;
+
+&lt;p&gt;而从编译的时机来说，有JIT（Just In Time）即时编译，就是在程序运行时期编译，以及AOT（Ahead Of Time），也就是提前编译。通常，只有静态语言才能通过AOT方式编译成本地机器代码，因为机器语言一般都需要知道数据的类型，而动态语言在运行之前是不知道类型的。所以动态语言一般都是以JIT的方式进行编译。&lt;/p&gt;
+
+&lt;p&gt;在开发的时候使用AOT方式就会导致开发周期比较慢，当然这是显而易见的，因为你要看效果就要等它重新编译（当然也不是全部重新编译）。但是JIT方式在打包发布以后就会显得很笨重，执行超慢，因为JIT编译器需要在执行代码之前进行分析和即时编译。而调研显示，如果你的app打开时间超过3秒，就会有超过25%的用户选择直接卸载。&lt;/p&gt;
+
+&lt;p&gt;正如在前面提到的一样，Dart支持AOT（Ahead Of Time）编译，也就是说dart代码可以编译成快速，可预测的机器代码。几乎所有的Flutter自带组件都是用Dart编写的，这样Flutter不仅可以快速启动，系统的widget也都可以对细节进行定制。而对JIT的支持，使得她可以在亚秒级重载，这样设计改样式，产品改文案，你就可以直接改给他看了。&lt;/p&gt;
+
+&lt;p&gt;而Dart在编译和执行方面的灵活性不止于此。Dart（ECMA-408）是可以编译成JavaScript，即使是不编译成JavaScript，Google也提供了AngularDart。除此之外，Flutter有一个子项目Hummingbird，它是一个基于 Web 实现的 Flutter 运行时环境。它利用了 Dart 语言能被编译成 JavaScript 的特性。这个项目让 Flutter 应用程序能够无需改动地运行在标准 Web 平台。&lt;/p&gt;
+
+&lt;p&gt;最后Dart还提供一个独立的VM，它使用Dart本身作为中间语言。就像Node.js环境，可以用了写一些中台的胶水代码，去调用领域服务。所以才有了像阿里巴巴闲鱼这种全栈Dart的技术团队。&lt;/p&gt;
+
+&lt;h3 id=&quot;32-抢占式调度时间切片和共享资源&quot;&gt;3.2 抢占式调度，时间切片和共享资源&lt;/h3&gt;
+
+&lt;p&gt;大多数支持并发编程的语言都使用“抢占式多任务处理(Preemption)”的方式在线程之间进行切换，像Java, Kotlin, Objective-C以及Swift都是这样的。每一个线程会被分配一个“切片”时间来执行，如果超过其分配的时间，就会进行上下文切换（context switch）来抢占线程。如果在更新线程共享资源的时候发生抢占，就会产生竞态条件（Race Condition，它描述一个系统或者进程的输出依赖于不受控制的事件出现的顺序或者出现的时机）。这种问题会导致严重的错误，数据丢失，甚至崩溃。并且更要紧的是，这种错误在调试的时候很难复现，因为他们的发生取决于独立线程的相对时间。一旦你打断点调试，这些问题就不再出现了。&lt;/p&gt;
+
+&lt;p&gt;修复竞态条件的典型方法就是添加阻止其他线程访问共享资源的锁来保护他们，但锁本身又复杂易错，可能导致死锁（Deadlock）和饥饿（Starvation）。而Dart没有这个问题，线程在Dart中叫isolate，它不共享内存资源，也就不需要大多数的锁机制。isolate之间则通过一种消息传递机制来进行通信。&lt;/p&gt;
+
+&lt;p&gt;除了不共享内存，Dart还是单线程的，所以没有抢占式多任务处理。单线程可以保证重要的功能被优先执行完成，像动画，页面切换这种不会被抢占，以保证页面流畅。&lt;/p&gt;
+
+&lt;h3 id=&quot;33-allocation和gc&quot;&gt;3.3 Allocation和GC&lt;/h3&gt;
+
+&lt;p&gt;Dart的垃圾回收使用分代收集（generation collection）的方式，这种方式依照对象存活时间的长短使用不同的垃圾收集算法，以达到最好的收集性能。Java就用这种方式，他将整个堆切割为三个部分：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Young
+    &lt;ul&gt;
+      &lt;li&gt;Eden：存放新生对象。&lt;/li&gt;
+      &lt;li&gt;Survivor：存放经过垃圾回收没有被清除的对象。&lt;/li&gt;
+      &lt;li&gt;semi-Spaces：和Survivor做Copying collection。&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Tenured：对象多次回收没有被清除，则移到该区块。&lt;/li&gt;
+  &lt;li&gt;Perm：存放加载的类别还有方法对象。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;绝大部分的对象被分配在Young generation（生命周期短），并且大部分的object在这里被销毁。当Young generation满了之后，将引发minor collection（YGC）。在minor collection后存活的object会被移动到Tenured generation（生命周期比较长）。最后，Tenured generation满之后触发major collection。major collection（Full gc）会触发整个heap的回收，包括回收Young generation。Perm generation区域比较稳定，主要存放class loader信息。&lt;/p&gt;
+
+&lt;p&gt;这种方式对于分配很多短周期的对象非常快，非常适合Flutter这种响应式视图，因为它刷新每一帧的时候都会重新创建视图树。这也使得Flutter界面能够保持流畅。&lt;/p&gt;
+
+&lt;h2 id=&quot;4工程实践&quot;&gt;4.工程实践&lt;/h2&gt;
+
+&lt;p&gt;###4.1 工程架构&lt;/p&gt;
+
+&lt;p&gt;在正式编写代码之前我们需要考虑一下工程架构。Flutter自有的响应式架构已经非常系统了，加上InheritedWidget等一系列的设计，可以让我们非常方便的管理数据的流转和界面的刷新。但是随着工程代码的逐步增加，接口调用增多，埋点的碎片化，等等问题，导致代码越来越混乱，难以管理，出bug的风险急剧上升，KPI分数指数下降，我们就需要某个架构来管理代码。&lt;/p&gt;
+
+&lt;p&gt;当然没有最好的架构，只有最合适的，并且某些架构之间有互通的地方。本文就简单介绍一下我们实践过的一个架子，Redux。Redux这种重量级选手很多资料都有所提及，他的设计初衷在于，随着应用复杂度的提高，我们常常需要处理很多来源的数据，从各种接口读取的，从本地数据库读取的等等，场景诸如主页多tab，feed流拼接之类的；另外我们有时还需要保存很多全局状态，在这些状态改变之后，很多页面都需要刷新，比如是否login，主题颜色更改甚至是国际化变更语言。为了解决这些问题，就引入了Redux的第一个设计原则，单一数据源。&lt;/p&gt;
+
+&lt;p&gt;Single source of truth：整个app的state都以object tree的形式存在一个store里，就像一个大数据中心，可以在app中的任意位置访问数据，绑定监听。这样在传统编程环境中很难实现的功能，比如撤销/重做这种就很容易实现。&lt;/p&gt;
+
+&lt;p&gt;State is read-only：第二个设计原则为，state是只读的，也就是说state不可以直接修改，所有修改行为必须通过发送Action。因为所有State的改变都是集中且按照严格顺序发生的，所以也没有竞态条件。并且action就是普通的dart类，所以他们可以被记录，被序列化，被存储起来，这就使得我们可以在崩溃之前把程序最后的状态报告上来，方便调试，甚至直接redo一下。&lt;/p&gt;
+
+&lt;p&gt;Changes are made with pure functions：上面提到的Action只是定义一个行为，Reducer才是执行者。第三个设计原则就是，Reducer是纯函数，所谓纯函数就是没有副作用（side effect），只进行计算或者调用其他纯函数。他接收一个action和一个旧的state，然后返回新的state。Reducer可以根据项目的大小分层级，app启动的时候添加一个reducer，之后可以拆分成很多小的reducer来管理state树的各个模块。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/in-post/flutter-note/redux.png&quot; alt=&quot;redux&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;关于Redux编码的细节可以单独写一本书，作者水平有限就不再赘述，感兴趣的同学可以通过文末的链接找到很多相关的资料。&lt;/p&gt;
+
+&lt;h3 id=&quot;42-widget介绍&quot;&gt;4.2 widget介绍&lt;/h3&gt;
+
+&lt;p&gt;正如之前所说，在flutter中一切界面元素都是widget，包括Layout布局，动画，输入框，图片，列表等等，甚至应用程序本身也是一个widget。具体的大家可以直接查阅文档，本文列举几个常用的且重要的widget进行介绍。&lt;/p&gt;
+
+&lt;h4 id=&quot;421-layout&quot;&gt;4.2.1 Layout&lt;/h4&gt;
+
+&lt;p&gt;在flutter中&lt;strong&gt;Layout&lt;/strong&gt;基于“盒子原则”进行布局，每一个控件都可以想象成一个矩形盒子，然后盒子套盒子，就成了一个新盒子（^~^）。最常用的布局widget就是Container，作为最基础的盒子，他可以设置约束，颜色，对其方式等等。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Container(
+  constraints: BoxConstraints.expand(
+    height: Theme.of(context).textTheme.display1.fontSize * 1.1 + 200.0,
+  ),
+  padding: const EdgeInsets.all(8.0),
+  color: Colors.teal.shade700,
+  alignment: Alignment.center,
+  child: Text('Hello World', style: Theme.of(context).textTheme.display1.copyWith(color: Colors.white)),
+  foregroundDecoration: BoxDecoration(
+    image: DecorationImage(
+      image: NetworkImage('https://www.example.com/images/frame.png'),
+      centerSlice: Rect.fromLTRB(270.0, 180.0, 1360.0, 730.0),
+    ),
+  ),
+  transform: Matrix4.rotationZ(0.1),
+)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;另外像Padding，Center，Align，AspectRatio等等widget都可以单独设置。&lt;/p&gt;
+
+&lt;p&gt;除了Single-child layout widgets，还有Multi-child layout widgets，也就是有多个子元素的布局widget。横排的是Row，纵排的为Column，叠起来的叫作Stack，还有网格的GridView等等。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  mainAxisSize: MainAxisSize.min,
+  children: &amp;lt;Widget&amp;gt;[
+    Text('We move under cover and we move as one'),
+    Text('Through the night, we have one shot to live another day'),
+    Text('We cannot let a stray gunshot give us away'),
+    Text('We will fight up close, seize the moment and stay in it'),
+    Text('It’s either that or meet the business end of a bayonet'),
+    Text('The code word is ‘Rochambeau,’ dig me?'),
+    Text('Rochambeau!', style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 2.0)),
+  ],
+)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;其中mainAxisAlignment就是主轴方向布局，对于Column主轴就是竖的，对于Row主轴就是横的。crossAxisAlignment则为垂直轴布局，所谓垂直轴就是和主轴成90度角垂直的轴，对于Column来说就是横向轴了。&lt;/p&gt;
+
+&lt;h4 id=&quot;422-textimage等等&quot;&gt;4.2.2 Text，Image等等&lt;/h4&gt;
+
+&lt;p&gt;除了布局元素，控件元素按照设计风格分为两大类，Material Components和Cupertino，分别对应Google设计元素和iOS风格元素，也就是说，在Flutter中也可以用iOS比较经典的样式，比如ActionSheet，AlertView，DataPicker等等，当然这些都是直接由flutter框架原生实现的仿制品，不借助于系统平台的OEM组件。&lt;/p&gt;
+
+&lt;p&gt;说到Image这里有一个点需要注意，在使用本地图片的时候，除了把图片文件拖入到工程中，还需要在yaml中添加如下内容&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# pubspec.yaml
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  # assets:
+  #  - images/a_dot_burr.jpeg
+  #  - images/a_dot_ham.jpeg
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;诸如这样才能在Image控件中加载到image文件。&lt;/p&gt;
+
+&lt;p&gt;widget相关的内容可以参考官方文档&lt;a href=&quot;https://flutter.io/docs/development/ui/widgets&quot;&gt;https://flutter.io/docs/development/ui/widgets&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;43-实践中遇到的问题&quot;&gt;4.3 实践中遇到的问题&lt;/h3&gt;
+
+&lt;p&gt;因为flutter还处于起步阶段，12月初才刚刚发布了1.0正式版，在Git上还有4000+的issue，但是在这个阶段，Google的开发者就更愿意倾听来自社区的声音，发现的问题也在Git上进行讨论，我自己就在Git上提过一个问题，得到了很多开发者的回复，瞬间感觉被世界所拥抱。所以在这里，我们遇到的或者看到的问题，以及目前不完善的地方也逐一和大家分享。&lt;/p&gt;
+
+&lt;h4 id=&quot;431-无反射的json序列化&quot;&gt;4.3.1 无反射的json序列化&lt;/h4&gt;
+
+&lt;p&gt;Flutter的json解析使用&lt;em&gt;dart:convert&lt;/em&gt;中内置的解码器，只要传入JSON的原始字符串给&lt;em&gt;JSON.decode()&lt;/em&gt;方法，然后从返回的&lt;em&gt;Map&amp;lt;String, dynamic&amp;gt;&lt;/em&gt;中取你要的数据就行了。当需要用Map生成Model对象的时候，需要在Model中添加fromJson方法，通过调用方法实现来逐一取出Map中的值填充到对象中。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class FeedModel {
+  List imglist;
+  int commentnum;
+
+  FeedModel(this.imglist, this.commentnum)
+  
+  FeedModel.fromJson(Map&amp;lt;String, dynamic&amp;gt; json)
+      : imglist = json['imglist'],
+        commentnum = json['commentnum'];
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;在大型工程中，这种方式就略显笨拙，Flutter有一个工具来批量生成fromJson方法。需要我们使用一个叫json_annotation的库，并在yaml文件中引入以下配置：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;dependencies:
+  flutter:
+    sdk: flutter
+  json_annotation: ^2.0.0
+  ...
+dev_dependencies:
+...
+  build_runner: ^1.1.2
+  json_serializable: ^2.0.0
+  ...
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;json_annotation可以让你在Model类中进行标记，有点像JavaSpring，build_runner和json_serializable是两个“dev_dependencies”，就是说在正式发布的时候并不包含这两个库，他们只是用来辅助开发的工具。在引入json_annotation.dart之后，我们就可以改造一下Model类了&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// feed_model.dart
+@JsonSerializable()
+class FeedModel {
+  List imglist;
+  int commentnum;
+
+  FeedModel(this.imglist, this.commentnum)
+  
+  factory FeedModel.fromJson(Map&amp;lt;String, dynamic&amp;gt; json) =&amp;gt;
+      _$FeedModelFromJson(json);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;在类的开头添加JsonSerializable标记，如果json中字段名字和类的属性名称不一致，还需要在属性前添加@JsonKey(name: ‘name_in_json’)标记。然后在控制台运行flutter packages pub run build_runner build命令，就会生成一个feed_model.g.dart的文件&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'feed_model.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+FeedModel _$FeedModelFromJson(Map&amp;lt;String, dynamic&amp;gt; json) {
+  return FeedModel(
+      json['imglist'] as List,
+      json['commentnum'] as int,
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;这样就自动生成了一部分模版代码。虽然这非常方便，但如果我们每次在模型类中进行更改时都不需要手动地运行构建，那就更好了。为了持续地生成代码，我们需要用到watcher工具。它会监控我们项目文件的改变并在需要的时候自动编译那些必要的文件。我们可以在项目根目录下运行flutter packages pub run build_runner watch来启动watcher。这样在我们更改了Model类之后，他就能自动生成匹配的.g.dart文件了。&lt;/p&gt;
+
+&lt;p&gt;但也仅仅如此了。为什么这么说呢，因为我们在flutter中无法使用GSON/Jackson之类的库，这些库需要用到运行时的反射机制，而这在Flutter中是被禁用的。&lt;/p&gt;
+
+&lt;p&gt;为什么反射被禁用呢？正如我们之前所说，FlutterUI工具包会被打包在每一个App中，也就是说，开发者只写一个HelloWorld程序，Flutter也需要在包中添加很多相应的支持库，这就导致Flutter对优化应用大小格外关注。为了优化应用大小，以及在发布版本中“摆脱”一些无用的代码，Dart支持&lt;strong&gt;tree shaking&lt;/strong&gt;特性。Tree Shaking顾名思义就是摇树，就是把树上一些没用的东西摇掉，特别形象。Flutter的结构本质上就是一棵Widget树，自main方法以下，引入了很多文件，依赖了很多模块，但在实际情况中，虽然依赖了某个模块，但其实只使用其中的部分功能，通过tree shaking摇掉没用的模块功能，来删除无用代码。而运行时反射干涉了tree shaking，因为反射默认隐式地调用所有代码，这让tree shaking变得困难。工具无法知道哪些部分在运行时未使用，以至于多余的代码很难被清理掉。所以在使用反射时，应用大小不容易被优化，这个特性就被禁用了。&lt;/p&gt;
+
+&lt;h4 id=&quot;432-视频外接纹理&quot;&gt;4.3.2 视频外接纹理&lt;/h4&gt;
+
+&lt;p&gt;视频外接纹理是阿里巴巴闲鱼团队遇到的一个非常有价值的问题。正如最开始所说，Flutter Engine和Native之间通过Platform Channel机制进行通信，正如所有桥接机制一样，在Flutter侧需要一些Native侧高内存占用图像的时候，（比如摄像头帧，视频帧），用于图像等数据的传输必然引起内存和CPU的巨大消耗。为此，Flutter提供了一个特殊的Widget，Texture。&lt;/p&gt;
+
+&lt;p&gt;首先，纹理Texture在物理上指的是GPU显存中一段连续的空间，可以理解为GPU内代表图像数据的一个对象，他有一些属性，比如高度、宽度、色彩通道数量。其次，Flutter中Texture Widget就是一个可以由Native平台渲染并填充纹理的一块矩形区域。而填充纹理的方式，就是使用一个共享的PixelBuffer。Native端将摄像头获取的数据（或者视频帧之类的），直接写入到PixelBuffer中，Flutter通过copyPixelBuffer方法拿到PixelBuffer以后转成OpenGLES Texture，交由Skia绘制。&lt;/p&gt;
+
+&lt;p&gt;但是在实际工程中，很多情况在Native侧需要通过GPU对视频图像数据进行处理，比如美颜，也就是说在进入PixelBuffer之前已经生成GPU纹理Texture了，然后又要通过CPU计算加入到PixelBuffer中，之后再通过Flutter引擎调用，转化为Texture，&lt;strong&gt;GPU-&amp;gt;CPU-&amp;gt;GPU&lt;/strong&gt;这就造成了浪费，并且CPU和GPU的内存交换是所有操作里面最耗时的。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/in-post/flutter-note/buffer.png&quot; alt=&quot;buffer&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;为了让Flutter侧直接读取到Native侧的Texture，闲鱼团队做了一个&lt;strong&gt;ShareGroup&lt;/strong&gt;的露出。&lt;/p&gt;
+
+&lt;p&gt;在说ShareGroup之前，需要简单说一下Flutter的线程机制。通常情况下，Flutter创建4个Runner，UI Runner、GPU Runner、IO Runner和Platform Runner，一个Runner对应一个线程，Platform Runner跑在主线程上。使用OpenGL的app在线程设计上都会有一个线程负责加载资源，一个线程负责渲染。但是为了能让负责加载的线程创建出的Texture，给负责渲染的线程使用，两个线程会共用一个EAGLContext。正如之前介绍Dart设计原理的时候提到的一样，共享资源是不安全的，而加锁的话不仅影响速度还会有死锁饥饿等问题。因此Flutter在EAGLContext的使用上使用了另一种机制：两个线程各自使用自己的EAGLContext，彼此通过&lt;strong&gt;ShareGroup&lt;/strong&gt;（android为shareContext）来共享纹理数据。&lt;/p&gt;
+
+&lt;p&gt;而Native侧在使用OpenGL的模块时也会在自己线程下创建EAGLContext，闲鱼团队就是让ShareGroup露出给Native侧，然后在Native侧保存这个ShareGroup，当Native创建Context时，就使用这个ShareGroup进行创建。这样，利用Flutter原有的线程共享资源机制，打通了和Native线程共享资源的能力。&lt;/p&gt;
+
+&lt;p&gt;闲鱼外接纹理原文：&lt;a href=&quot;https://juejin.im/post/5b7b9051e51d45388b6aeceb&quot;&gt;https://juejin.im/post/5b7b9051e51d45388b6aeceb&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;[注]An &lt;code class=&quot;highlighter-rouge&quot;&gt;EAGLContext&lt;/code&gt; object manages an OpenGL ES &lt;em&gt;rendering context&lt;/em&gt;—the state information, commands, and resources needed to draw using OpenGL ES.  EAGLContext对象管理OpenGL ES渲染所需的上下文环境。包括OpenGL ES绘制所需的状态信息，命令和资源。&lt;/p&gt;
+
+&lt;h2 id=&quot;5编译打包&quot;&gt;5.编译打包&lt;/h2&gt;
+
+&lt;p&gt;实际上，Flutter下的iOS和android工程依然是一个普通的iOS/android工程，Flutter只是通过在BuildPhase添加shell脚本来自动生成和嵌入App.framework和Flutter.framework（iOS），通过gradle来添加Flutter.jar和vm/isolate_snapshot_data/instr(Android)来将Flutter相关代码编译和嵌入原生App而已。&lt;/p&gt;
+
+&lt;p&gt;对于Flutter而言，他支持基本的编译模式，常见的Debug，Release和Profile，这几种模式又各有不同：&lt;/p&gt;
+
+&lt;p&gt;Debug模式可以在真机和模拟器上同时运行：会打开所有的断言，包括debugging信息、调试辅助工具（debugger aids，比如observatory）和服务扩展。优化了快速develop/run循环，但是没有优化执行速度、二进制大小和部署。命令Flutter run就是以这种模式运行的。&lt;/p&gt;
+
+&lt;p&gt;Release模式只能在真机上运行，不能在模拟器上运行：会关闭所有断言和debugging信息，关闭所有debugger工具。优化了快速启动、快速执行和减小包体积。禁用所有的debugging aids和服务扩展。这个模式是为了部署给最终的用户使用。命令Flutter run –release就是以这种模式运行的。&lt;/p&gt;
+
+&lt;p&gt;Profile模式只能在真机上运行，不能在模拟器上运行：基本和Release模式一致，除了启用了服务扩展和tracing，以及一些为了最低限度支持tracing运行的东西（比如可以连接observatory到进程）。命令Flutter run –profile就是以这种模式运行的，因为模拟器不能代表真实场景，所以不能在模拟器上运行。&lt;/p&gt;
+
+&lt;p&gt;对于iOS来说，打包只需要在工程目录下执行flutter build ios命令，之后打开Xcode，按照普通工程Archive的步骤进行就可以了，Android类似。&lt;/p&gt;
+
+&lt;p&gt;iOS打包方法&lt;a href=&quot;https://flutter.io/docs/deployment/ios&quot;&gt;https://flutter.io/docs/deployment/ios&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Android打包方法&lt;a href=&quot;https://flutter.io/docs/deployment/android&quot;&gt;https://flutter.io/docs/deployment/android&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;编译细节参考闲鱼的这篇文章&lt;a href=&quot;https://www.yuque.com/xytech/Flutter/sh4fbm#8dh0zl&quot;&gt;https://www.yuque.com/xytech/Flutter/sh4fbm#8dh0zl&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;6flutter未来的计划&quot;&gt;6.Flutter未来的计划&lt;/h2&gt;
+
+&lt;p&gt;2018年12月初，Flutter发布1.0版本，github上也增加了stable通道。1.0版本提供了一些全新的iOS风格widget，优化了很多git上提出的issue，另外接入了近20种Firebase服务（目前国内还不能用，但据说在和腾讯磋商），同时优化了性能，减少了包体积。除此之外Dart也更新到了2.1，提供更快的类型检查以及错误提示。&lt;/p&gt;
+
+&lt;p&gt;为了更好的使用Flutter框架，项目组也计划在2019年二月提供更好的工具链，以方便开发者将Flutter引入到现有的工程中，因为毕竟不是每个团队都有机会从头使用Flutter构建项目的。&lt;/p&gt;
+
+&lt;p&gt;上面提到的Add to App功能非常适合于逐渐引入Flutter到现有应用中，但有时候我们反倒需要将Android或iPhone平台的控件嵌入到Flutter应用当中。所以Flutter团队引入了AndroidView和UiKitView这两个平台级视图的widget到Flutter中，这样就可以将它们分别嵌入到指定的平台。之前我们使用一个原生页面，比如百度地图，就必须弹出一个纯原生页，上面添加UI比如按钮文字什么的，都需要iOS和android分别用原生实现。有了平台级视图widget，我们就可以把两端分别实现的控件包装起来（如百度地图，因为百度地图短时间不会提供Flutter插件，所以还是要两端分别接入SDK），然后在Flutter中以widget的形式插入到视图中，然后在上面添加其他的widget，Flutter的文字按钮之类的，以达到多端共用一套代码的目的。&lt;/p&gt;
+
+&lt;p&gt;除了移动端，Flutter还有一个处于实验中的内部项目-Hummingbird。他是一个基于 Web 实现的 Flutter 运行时环境。它利用了 Dart 语言能被编译成 JavaScript 的特性。这个项目让 Flutter 应用程序能够无需改动地运行在标准 Web 平台。除了web端，Google还在开发一个新的操作系统，叫作Fuchsia，和基于Linux内核的Chrome OS以及Android不同，Fuchsia基于一个叫作Zircon的微内核。设计目标之一是可运行在众多的设备上，包括移动电话和个人计算机。而Fuchsia的用户界面和应用程序，都是用Flutter编写的。&lt;/p&gt;
+
+&lt;p&gt;总而言之，Flutter作为Google推出的专注但不限于移动端的UI引擎框架，在提高工作效率，创建精美的UI界面上，不断探索前进。而对于我们程序员说，可以尝试新的开发模式，接触新的设计思想，在Git上和全球开发者讨论问题，研读源码，也是很有意思的事，不是么？&lt;/p&gt;
+
+&lt;h2 id=&quot;7参考资料&quot;&gt;7.参考资料&lt;/h2&gt;
+
+&lt;p&gt;1.闲鱼关于Flutter的文章，很硬核：&lt;a href=&quot;https://www.yuque.com/xytech/flutter&quot;&gt;https://www.yuque.com/xytech/flutter&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;2.Flutter架构示例，其中就包括Redux：&lt;a href=&quot;http://fluttersamples.com/&quot;&gt;http://fluttersamples.com/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;3.Flutter官网：&lt;a href=&quot;https://flutter.io/&quot;&gt;https://flutter.io/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;4.以及Git主页：&lt;a href=&quot;https://github.com/flutter&quot;&gt;https://github.com/flutter&lt;/a&gt;&lt;/p&gt;
+
+</description>
+        <pubDate>Thu, 24 Jan 2019 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2019/01/24/Flutter%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/01/24/Flutter%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>RxCocoa</title>
+        <description>&lt;p&gt;##&lt;/p&gt;
+
+</description>
+        <pubDate>Wed, 17 Jan 2018 19:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2018/01/17/RxCocoa/</link>
+        <guid isPermaLink="true">http://localhost:4000/2018/01/17/RxCocoa/</guid>
+        
+        <category>RxSwift</category>
+        
+        <category>读书笔记</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>RxSwift-Operators</title>
+        <description>&lt;h2 id=&quot;前言&quot;&gt;前言&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;数学是符号加逻辑。 —— 罗素&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Operators是Rx的基础模块，可以用来转化、处理observables发射出来的事件。就像你可以用加减乘除来创建复杂的表达式一样，你也可以用这些operators链式表达app的逻辑。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;catalog&quot;&gt;Catalog&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;#filtering--operators&quot;&gt;Filtering Operators&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#transforming--operators&quot;&gt;Transforming Operators&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#combining--operators&quot;&gt;Combining Operators&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#time--based--operators&quot;&gt;Time Based Operators&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;filtering-operators&quot;&gt;Filtering Operators&lt;/h2&gt;
+
+&lt;h3 id=&quot;ignoring-operators&quot;&gt;Ignoring operators&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;ignoreElements&lt;/strong&gt; 忽略全部&lt;em&gt;.next&lt;/em&gt;，只会响应终止信号，&lt;em&gt;.completed&lt;/em&gt;或者&lt;em&gt;.error&lt;/em&gt;。&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;strikes&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;PublishSubject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;strikes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;ignoreElements&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; 
+&lt;span class=&quot;n&quot;&gt;strikes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;X&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;strikes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;X&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;strikes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;onCompleted&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 只触发completed方法&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;elementAt&lt;/strong&gt; 过滤后只留下指定index位置的元素。&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;strikes&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;PublishSubject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;strikes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;elementAt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;strikes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;0&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;strikes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;n&quot;&gt;strikes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 触发&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;filter&lt;/strong&gt; 条件过滤。&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;filter&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;integer&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;integer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// 输出偶数2,4,6&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h3 id=&quot;skipping-operators&quot;&gt;Skipping operators&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;skip&lt;/strong&gt; 跳过若干个元素。&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;A&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;B&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;C&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;D&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;E&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;F&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;skip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// 输出DEF&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;skipWhile&lt;/strong&gt; 跳过前面所有符合条件的元素，一旦发现需要保留的元素，则跳过条件失效，保留后面所有的元素。&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;skipWhile&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;integer&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;integer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// 输出3,4,4&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;skipUntil&lt;/strong&gt; 跳过所有元素，直到他参数中的那个Observable发射事件后，跳过失效。&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;subject&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;PublishSubject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; 
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;trigger&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;PublishSubject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;subject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;skipUntil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;trigger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;n&quot;&gt;subject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;A&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;n&quot;&gt;subject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;B&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;trigger&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;X&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;n&quot;&gt;subject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;C&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 输出C&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h3 id=&quot;taking-operators&quot;&gt;Taking operators&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;take&lt;/strong&gt; 接受若干个元素&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;take&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 输出123&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;takeWhileWithIndex&lt;/strong&gt;  根据条件接受元素，block中另外有index值&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;takeWhileWithIndex&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;integer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;index&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;integer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;index&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt; 
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 输出224&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;takeUntil&lt;/strong&gt; 接受元素，直到事件发生，和skipUntil相似&lt;/p&gt;
+&lt;h3 id=&quot;distinct-operators&quot;&gt;Distinct operators&lt;/h3&gt;
+&lt;p&gt;避免重复数据。
+&lt;strong&gt;distinctUntilChanged&lt;/strong&gt; 默认实现去重复&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;A&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;A&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;B&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;B&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;A&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;distinctUntilChanged&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 输出ABA&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;distinctUntilChanged&lt;/strong&gt; 当block中的条件触发，则过滤触发条件的元素。&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;distinctUntilChanged&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 这里需要返回一个Bool值&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 输出10,20&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;transforming-operators&quot;&gt;Transforming Operators&lt;/h2&gt;
+
+&lt;h3 id=&quot;transforming-elements&quot;&gt;Transforming elements&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;toArray&lt;/strong&gt; 将元素转为数组
+&lt;strong&gt;map&lt;/strong&gt; 和swift标准库的map函数一样，只不过作用于Observables。
+&lt;strong&gt;mapWithIndex&lt;/strong&gt; block中另外返回index参数，用于控制在某位置进行map操作&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mapWithIndex&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;integer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;index&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;index&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;integer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;integer&lt;/span&gt; 
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;subscribe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// 输出1，2，3，8，10，12&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h3 id=&quot;transforming-inner-observables&quot;&gt;Transforming inner observables&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;/img/in-post/post-RxSwift/RxSwift_Operators_01.png&quot; alt=&quot;java-javascript&quot; /&gt;
+&lt;strong&gt;flatMap&lt;/strong&gt; 在swift标准库里，flatMap会将二维数组降维，将其子数组中的元素取出来。flatMap在Rx中的设计原理也类似，将Observable从Observable中取出来，并flat down。&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;disposeBag&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;DisposeBag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;ryan&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Student&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;score&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Variable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;80&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;charlotte&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Student&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;score&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Variable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;90&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;student&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;PublishSubject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Student&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;student&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;asObservable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;flatMap&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;score&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;asObservable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;subscribe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nf&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+  &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;disposed&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;by&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;disposeBag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;student&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ryan&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;        &lt;span class=&quot;c1&quot;&gt;// 输出80&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;ryan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;score&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;85&lt;/span&gt;       &lt;span class=&quot;c1&quot;&gt;// 输出85&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;student&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;charlotte&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;   &lt;span class=&quot;c1&quot;&gt;// 输出90&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;ryan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;score&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;95&lt;/span&gt;       &lt;span class=&quot;c1&quot;&gt;// 输出95&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;charlotte&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;score&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 输出100&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;combining-operators&quot;&gt;Combining Operators&lt;/h2&gt;
+
+&lt;h3 id=&quot;prefixing-and-concatenating&quot;&gt;Prefixing and concatenating&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;/img/in-post/post-RxSwift/RxSwift_Operators_02.png&quot; alt=&quot;java-javascript&quot; /&gt;
+&lt;strong&gt;startWith&lt;/strong&gt; 为队列添加前缀值&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;numbers&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;observable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;numbers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;startWith&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;n&quot;&gt;observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;subscribe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// 输出1 2 3 4&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;img src=&quot;/img/in-post/post-RxSwift/RxSwift_Operators_03.png&quot; alt=&quot;java-javascript&quot; /&gt;
+&lt;strong&gt;.concat&lt;/strong&gt; 合并两个队列&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;first&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;second&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;observable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;concat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;second&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;subscribe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;以这种方式新创建的Observable会订阅第一个Observable，直到第一个队列结束后，切换到第二个队列，以此类推。如果其中任何一个发出.error事件，链接后的新建队列会转发error并立即退出。还有一种链接方式是，first.concat(second)，效果相同。&lt;/p&gt;
+
+&lt;p&gt;还有一种添加前缀并链接的方法，就是just加concat。&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;numbers&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;observable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt; 
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;just&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;concat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;numbers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h3 id=&quot;merging&quot;&gt;Merging&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;/img/in-post/post-RxSwift/RxSwift_Operators_04.png&quot; alt=&quot;java-javascript&quot; /&gt;
+&lt;strong&gt;merge()&lt;/strong&gt; 一个merge()observable会订阅每一个队列里面的元素，每当收到一个事件的时候便立即转发，没有预先设定的顺序。&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;left&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;PublishSubject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; 
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;right&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;PublishSubject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;source&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;left&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;asObservable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;right&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;asObservable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;observable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;source&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;merge&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; 
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;disposable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;subscribe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;ul&gt;
+  &lt;li&gt;merge()会在source队列和它所有的内部队列结束之后结束&lt;/li&gt;
+  &lt;li&gt;内部队列结束的顺序是无所谓的&lt;/li&gt;
+  &lt;li&gt;如果任何一个队列发射一个&lt;em&gt;.error&lt;/em&gt;信号，merge生成的队列立刻转发这个错误，然后就终止了。
+&lt;strong&gt;merge(maxConcurrent)&lt;/strong&gt; 这个重载方法会一直订阅进入的队列，直到达到上限。之后，再进入的observable会排队等待。每当source队列中有一个observable完成之后，他会按照顺序从等待队列中订阅一个新的observable。
+    &lt;h3 id=&quot;combining-elements&quot;&gt;Combining elements&lt;/h3&gt;
+    &lt;p&gt;&lt;img src=&quot;/img/in-post/post-RxSwift/RxSwift_Operators_05.png&quot; alt=&quot;java-javascript&quot; /&gt;
+&lt;strong&gt;combineLatest&lt;/strong&gt; 从图上就可以看出，combineLatest操作符会把两个队列中最新的两个元素组合起来返回。
+```swift
+let left = PublishSubject&lt;String&gt;() 
+let right = PublishSubject&lt;String&gt;()&lt;/String&gt;&lt;/String&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;let observable = Observable.combineLatest(left, right, resultSelector: { lastLeft, lastRight in 
+  “(lastLeft) (lastRight)” 
+})&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;combineLatest的一些重载
+简洁优雅
+```swift
+let observable = Observable.combineLatest(left, right) { ($0, $1) } 
+  .filter { !$0.0.isEmpty }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;两个参数可以不是相同的类型&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;choice&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;DateFormatter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Style&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;short&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;long&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;dates&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;observable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;combineLatest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;choice&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dates&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;when&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; 
+  &lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;formatter&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;DateFormatter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; 
+  &lt;span class=&quot;n&quot;&gt;formatter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dateStyle&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;format&lt;/span&gt; 
+  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;formatter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;from&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;when&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;subscribe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;onNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;接受一个集合类型，因为是集合类型，那么每个元素的类型就必须相同了&lt;/p&gt;
+&lt;div class=&quot;language-swift highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;observable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Observable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;combineLatest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;left&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;right&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;strings&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;strings&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;joined&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;separator&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot; &quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/in-post/post-RxSwift/RxSwift_Operators_06.png&quot; alt=&quot;java-javascript&quot; /&gt;
+&lt;strong&gt;zip&lt;/strong&gt; zip就是两两结合咯，不管哪个队列的先发射，都要等一个新的小伙伴一起。&lt;/p&gt;
+&lt;h3 id=&quot;triggers&quot;&gt;Triggers&lt;/h3&gt;
+
+</description>
+        <pubDate>Thu, 11 Jan 2018 01:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2018/01/11/RxSwift-Operators/</link>
+        <guid isPermaLink="true">http://localhost:4000/2018/01/11/RxSwift-Operators/</guid>
+        
+        <category>RxSwift</category>
+        
+        <category>读书笔记</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>RxSwift-Subjects</title>
+        <description>&lt;h2 id=&quot;引子&quot;&gt;引子&lt;/h2&gt;
+&lt;p&gt;Observables是RxSwift的基础，但是我们在开发中经常需要在运行时向一个observable添加新值并发射给他的订阅者。所以我们需要一个既能充当&lt;strong&gt;observable&lt;/strong&gt;又能充当&lt;strong&gt;observer&lt;/strong&gt;的角色(还记得格鲁和小黄人的比喻么)。而这就是我们这篇要说的&lt;strong&gt;Subject&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h2 id=&quot;什么是subjects&quot;&gt;什么是subjects&lt;/h2&gt;
+&lt;p&gt;正如前面所说，subjects既是observer，又是observable。所以它既可以发射&lt;em&gt;.next&lt;/em&gt;这样的事件，又可以接受订阅。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;PublishSubject: 开始的时候是空的，并且只给订阅者发送新值。也就是说订阅者只能收到订阅之后，PublishSubject发送的值。&lt;/li&gt;
+  &lt;li&gt;BehaviorSubject: 开始的时候需要有一个初始值，当接到订阅的时候，会把最新的那个值(有可能是初始值)发送给新的订阅者。&lt;/li&gt;
+  &lt;li&gt;Variable: 封装了BehaviorSubject。(preserves its current value as state, and replays only the latest/initial value to new subscribers.)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;图解各种subject&quot;&gt;图解各种Subject&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&quot;/img/in-post/post-RxSwift/RxSwift_Subjects_01.png&quot; alt=&quot;java-javascript&quot; /&gt;&lt;/p&gt;
+&lt;center&gt;**PublishSubject**&lt;/center&gt;
+&lt;p&gt;&lt;img src=&quot;/img/in-post/post-RxSwift/RxSwift_Subjects_02.png&quot; alt=&quot;java-javascript&quot; /&gt;&lt;/p&gt;
+&lt;center&gt;**BehaviorSubject**&lt;/center&gt;
+&lt;p&gt;&lt;img src=&quot;/img/in-post/post-RxSwift/RxSwift_Subjects_03.png&quot; alt=&quot;java-javascript&quot; /&gt;&lt;/p&gt;
+&lt;center&gt;**ReplaySubjects**&lt;/center&gt;
+
+&lt;p&gt;这三张图，分别生动形象的说明了PublishSubjects，BehaviorSubjects以及一个有点特别的ReplaySubjects。向上的箭头代表订阅，向下的箭头代表发射数据(ReplaySubjects中间那根线是从一开始就订阅了的)。&lt;/p&gt;
+
+&lt;p&gt;ReplaySubjects只有一点点不同，就是可以设置一个buffer，能缓存若干了值，在新的订阅者订阅的时候，发射给他。&lt;/p&gt;
+
+&lt;h2 id=&quot;variables&quot;&gt;Variables&lt;/h2&gt;
+&lt;p&gt;正如之前提到过的，Variable封装了BehaviorSubject并且存储了当前的值(value)。你可以通过&lt;strong&gt;value&lt;/strong&gt;属性来获取Variable当前的值，并且，不像别的subjects或者observables，你也可以用这个&lt;strong&gt;value&lt;/strong&gt;属性给variable设置新值。换言之，你不用&lt;em&gt;onNext(_:)&lt;/em&gt;方法了。&lt;/p&gt;
+
+&lt;p&gt;因为他封装了BehaviorSubject，所以variable在创建的时候需要初始值，并且他会replay最近的一个值给订阅者。获得他subject拥有的行为，需要调用他的&lt;strong&gt;asObservable()&lt;/strong&gt;方法。&lt;/p&gt;
+
+&lt;p&gt;Variable与其他Subject还有一点不同，就是它保证不会发射&lt;em&gt;.error&lt;/em&gt;。并且Variable在销毁的时候(deallocated)，它会自动发送一个&lt;em&gt;.complete&lt;/em&gt;方法。所以你既不能手动发射&lt;em&gt;.error&lt;/em&gt;，也不能手动发射&lt;em&gt;.completed&lt;/em&gt;。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;var variable = Variable(&quot;Initial value&quot;)
+let disposeBag = DisposeBag()
+
+variable.value = &quot;New initial value&quot;
+
+variable.asObservable()
+	.subscribe { print(label: &quot;1)&quot;, event: $0)} 
+	.disposed(by: disposeBag)
+// 到这里打印: 1) New initial value
+
+variable.value = &quot;1&quot;
+
+variable.asObservable()
+	.subscribe { print(label: &quot;2)&quot;, event: $0) }
+	.disposed(by: disposeBag)
+
+variable.value = &quot;2&quot;
+// 到这里打印: 
+1) 1 
+2) 1  
+1) 2
+2) 2
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+</description>
+        <pubDate>Tue, 09 Jan 2018 01:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2018/01/09/RxSwift-Subjects/</link>
+        <guid isPermaLink="true">http://localhost:4000/2018/01/09/RxSwift-Subjects/</guid>
+        
+        <category>RxSwift</category>
+        
+        <category>读书笔记</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>RxSwift-Observables</title>
+        <description>&lt;h2 id=&quot;observable基础概念&quot;&gt;observable基础概念&lt;/h2&gt;
+&lt;p&gt;“observable” “observable sequence” 和 “sequence”在Rx中交替出现，其实都是一个意思，还有一些称其为“stream”，我们暂且称这些为“sequence”，一切都是“sequence”。Observable也是一种特别的sequence，最特别且重要的一点是，Observable是异步的。Observables产生events，这个过程叫做“emitting”，发射，这些发射出来的事件(events)带着值(values)，比如数字，对象，或者是点击手势。
+observable就是一个能发射带有值的事件的异步队列。&lt;/p&gt;
+
+&lt;h2 id=&quot;observable的生命循环&quot;&gt;observable的生命循环&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;一个observable会发射包含元素的&lt;strong&gt;next&lt;/strong&gt;事件，直到：&lt;/li&gt;
+  &lt;li&gt;…发射了一个&lt;strong&gt;error&lt;/strong&gt;事件，这个事件会包含着错误信息&lt;/li&gt;
+  &lt;li&gt;…发射了一个&lt;strong&gt;completed&lt;/strong&gt;事件，observable会正常终止&lt;/li&gt;
+  &lt;li&gt;一旦observable终止，就不能再发送事件了&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;创建observables&quot;&gt;创建observables&lt;/h2&gt;
+&lt;p&gt;使用&lt;strong&gt;just&lt;/strong&gt;，&lt;strong&gt;of&lt;/strong&gt;，&lt;strong&gt;from&lt;/strong&gt;创建Observable&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;let one = 1 
+let two = 2
+let three = 3
+
+let observable = Observable.just(one) // Observable&amp;lt;Int&amp;gt;类型，就只有这个一个元素
+let observable = Observable.of(one, two, three) // Observable&amp;lt;Int&amp;gt;类型，包含三个元素
+let observable = Observable.of([one, two, three]) // Observable&amp;lt;[Int]&amp;gt;类型，包含一个元素
+let observable = Observable.from([one, two, three]) // Observable&amp;lt;Int&amp;gt;类型，包含三个元素
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;订阅observables&quot;&gt;订阅observables&lt;/h2&gt;
+&lt;p&gt;我们很熟悉NotificationCenter，他会将post出来的通知广播给所有订阅者，然而Observables不是这样的。&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;let observer = NotificationCenter.default.addObserver( 
+	forName: .UIKeyboardDidChangeFrame, 
+	object: nil, 
+	queue: nil 
+) { notification in 
+	// Handle receiving notification 
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;订阅Observables不是用&lt;strong&gt;addObserver&lt;/strong&gt;而是用&lt;strong&gt;subscribing&lt;/strong&gt;，并且.default获取一个单例，而每一个observable都是不同的。
+最重要的是，一个observable在它被订阅之前是不会发送事件的，换句话说，observable只是要有一个订阅者(subscriber)才会开始发送事件。&lt;/p&gt;
+
+&lt;p&gt;订阅Observables之后会接受到三种事件，next，error以及complete，并且可以对这三种不同的事件分别处理。&lt;/p&gt;
+
+&lt;p&gt;只有next事件带有发射的元素，&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;observable.subscribe { event in
+	// event: next(1) next(2) next(3) completed
+	if let element = event.element { print(element) }
+	// event.element: 1 2 3
+}
+
+// 可以简单写成
+// 处理Next事件
+observable.subscribe(onNext: { element in print(element) })
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Observable&lt;Void&gt;.empty()只发送一个complete事件，之后会立即终止执行。&lt;/Void&gt;&lt;/li&gt;
+  &lt;li&gt;Observable&lt;Any&gt;.never()不发生任何事件，永远不停止。&lt;/Any&gt;&lt;/li&gt;
+  &lt;li&gt;Observable&lt;Int&gt;.range(start: 1, count: 10)，会发射一系列的数&lt;/Int&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;disposing和terminating&quot;&gt;Disposing和Terminating&lt;/h2&gt;
+&lt;p&gt;记住，observable在被订阅之前什么都不做。正是订阅使得observable开始发送事件，直到它发出了一个.error或者.completed事件后终止。你也可以通过手动取消订阅来终止一个observable。&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;let observable = Observable.of(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;)
+let subscription = observable.subscribe { event in
+	print(event)
+}
+subscription.dispose()
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;这样就显式的取消了订阅，这个例子中的observable便会停止发送事件。&lt;/p&gt;
+
+&lt;p&gt;当然一个个取消在工程上比较复杂，我们就引入了DisposeBag，只要吧subscribe添加到DisposeBag中，当disposeBag将要被销毁的时候(deallocated)，他将会对其中的每一个subscribe调用dispose()方法，相当于一个统一的处理方法。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;let disposeBag = DisposeBag()
+Observable.of(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;)
+	.subscribe { print($0) }
+	.disposed(by: disposeBag)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;不调用有可能会导致内存泄露。&lt;/p&gt;
+
+&lt;p&gt;你也可以用&lt;strong&gt;create&lt;/strong&gt;操作符来指定observable可以发射给订阅者的事件，不仅仅是element哟，create方法能让你指定event。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;let disposeBag = DisposeBag()
+Observable&amp;lt;String&amp;gt;.create { observer in
+	observer.onNext(&quot;1&quot;)
+	observer.onCompleted()
+	observer.onNext(&quot;?&quot;)
+	return Disposables.create()
+}
+.subscribe( 
+	onNext: { print($0) },
+	onError: { print($0) },
+	onCompleted: { print(&quot;Completed&quot;) }, 
+	onDisposed: { print(&quot;Disposed&quot;) } 
+)
+.disposed(by: disposeBag)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;上面那个create方法的描述如下&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;static func create(_ subscribe: @escaping 
+(AnyObserver&amp;lt;String&amp;gt;) -&amp;gt; Disposable)
+-&amp;gt; Observable&amp;lt;String&amp;gt;
+
+// 更通用的方法声明
+public static func create(_ subscribe: @escaping 
+(RxSwift.AnyObserver&amp;lt;RxSwift.Observable.E&amp;gt;) -&amp;gt; Disposable) 
+-&amp;gt; RxSwift.Observable&amp;lt;RxSwift.Observable.E&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;subscribe参数是一个逃逸闭包，接收一个AnyObserver类型的参数并且返回一个Disposable。AnyObserver是一个用来将事件方便的加入observable队列中的通用类型，然后observable会把事件发生给订阅者。&lt;/p&gt;
+
+&lt;p&gt;简单来说，observer就像住在observable中的工人，observable一旦被subscribers订阅，observable就会把observer生产的东西发生给订阅者。&lt;/p&gt;
+
+&lt;p&gt;举个例子，observable就像神偷奶爸中的格鲁，observer就像是小黄人…只不过在这里格鲁是一个和平主义者，不会主动去攻击别人，只有当坏人subscribers找上门来，格鲁才会向敌人发射小黄人生产的子弹（或者是各种脑洞大开的武器弹药）。&lt;/p&gt;
+
+&lt;p&gt;当然我们可以订阅这个create出来的observable了，还可以订阅它的各种事件。&lt;/p&gt;
+
+&lt;h2 id=&quot;创建observable工厂&quot;&gt;创建observable工厂&lt;/h2&gt;
+&lt;p&gt;和创建一个observable并等待subscribers来订阅不同的是，我们可以创建一个observable工厂来给每一个订阅者创建一个新的observable。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;let disposeBag = DisposeBag()
+var flip = false
+let factory: Observable&amp;lt;Int&amp;gt; = Observable.deferred {
+	flip = !flip
+	if flip {
+		return Observable.of(1, 2, 3) 
+	} else {
+		return Observable.of(4, 5, 6)
+	}
+}
+
+for _ in 0...3 {
+	factory.subscribe(onNext: {
+		print($0, terminator: &quot;&quot;) 
+	}) 
+	.disposed(by: disposeBag)
+	print()
+}
+// 打印结果: 123 456 123 456
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;打印结果表明，每次都是一个新的observable。也就是说，通过deferred关键字，我们的工厂方法每次都生产出一个新的observable。&lt;/p&gt;
+
+</description>
+        <pubDate>Thu, 04 Jan 2018 23:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2018/01/04/RxSwift-Observables/</link>
+        <guid isPermaLink="true">http://localhost:4000/2018/01/04/RxSwift-Observables/</guid>
+        
+        <category>RxSwift</category>
+        
+        <category>读书笔记</category>
+        
+        
+      </item>
     
       <item>
         <title>RxSwift简介</title>
@@ -15,10 +898,10 @@
   &lt;p&gt;“Don’t worry, Be happy ”&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;h2 id=&quot;section&quot;&gt;废话&lt;/h2&gt;
+&lt;h2 id=&quot;废话&quot;&gt;废话&lt;/h2&gt;
 &lt;p&gt;终于下定决心写一些东西，因为最近总感觉，有一些东西就在嘴边，却怎么也想不起来。所以还是得记下来。烂笔头就这样用起来吧。&lt;/p&gt;
 
-&lt;h2 id=&quot;rxswift&quot;&gt;RxSwift概览&lt;/h2&gt;
+&lt;h2 id=&quot;rxswift概览&quot;&gt;RxSwift概览&lt;/h2&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;RxSwift is a library for composing asynchronous and event-based code by using observable sequences and functional style operators, allowing for parameterized execution via schedulers.&lt;/p&gt;
@@ -36,7 +919,7 @@
 
 &lt;p&gt;是不是很fashion，几乎每个点都是当下流行的一本书了&lt;/p&gt;
 
-&lt;h2 id=&quot;section-1&quot;&gt;异步&lt;/h2&gt;
+&lt;h2 id=&quot;异步&quot;&gt;异步&lt;/h2&gt;
 &lt;p&gt;在app中，在任一时刻很多事情会同时发生，下载文件，刷新界面，向磁盘写入，等等…
 Cocoa和UIKit中有很多异步API:&lt;/p&gt;
 
@@ -51,29 +934,28 @@ Cocoa和UIKit中有很多异步API:&lt;/p&gt;
 
 &lt;p&gt;另外，UI的刷新必须在主线程上，我们很多时候会忽略这个问题，有的时候tableView刷新，控件的位置错乱，就要看看是不是在主线程上执行的刷新方法了。&lt;/p&gt;
 
-&lt;h2 id=&quot;section-2&quot;&gt;异步术语&lt;/h2&gt;
-&lt;p&gt;### 1. State, and specifically, shared mutable state
-State直白来看就是状态。就像你的电脑，也许刚打开的时候很好用，然而开了两三天之后就卡了。但是硬件还是那样，软件代码也没有变，发生变化了的就是State。&lt;/p&gt;
+&lt;h2 id=&quot;异步术语&quot;&gt;异步术语&lt;/h2&gt;
+&lt;h3 id=&quot;1-state-and-specifically-shared-mutable-state&quot;&gt;1. State, and specifically, shared mutable state&lt;/h3&gt;
+&lt;p&gt;State直白来看就是状态。就像你的电脑，也许刚打开的时候很好用，然而开了两三天之后就卡了。但是硬件还是那样，软件代码也没有变，发生变化了的就是State。&lt;/p&gt;
 
 &lt;p&gt;在内存和硬盘中的数据，对用户输入的反馈，从服务器下载内容留存下的痕迹–所有的这些就组成了电脑的State。&lt;/p&gt;
 
 &lt;p&gt;处理我们app的State，特别是那些当需要在多个异步组件中共享的时候，RxSwift的价值就体现出来了。&lt;/p&gt;
 
-&lt;h3 id=&quot;imperative-programming&quot;&gt;2. Imperative programming&lt;/h3&gt;
-&lt;p&gt;命令式编程
-&lt;code class=&quot;highlighter-rouge&quot;&gt;
-override func viewDidAppear(_ animated: Bool) {
+&lt;h3 id=&quot;2-imperative-programming&quot;&gt;2. Imperative programming&lt;/h3&gt;
+&lt;p&gt;命令式编程&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;override func viewDidAppear(_ animated: Bool) {
 	super.viewDidAppear(animated)
 	setupUI() 
 	connectUIControls()
 	createDataSource() 
 	listenForChanges()
 }
-&lt;/code&gt;&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;典型的命令式编程，在我的代码里几乎随处可见，这种方式从代码上来看，我们根本不知道他做了什么。是否更新了ViewController的属性？最关键是问题是，代码是不是必须按照这个顺序执行？那如果我们要更换其中两个方法的位置，结果会相同么？如果和你搭档的开发同学要在另一个ViewController中用这其中的两个方法，你对其没有任何约束和指导，甚至连信息都不是很明确，谨慎起见，就一定要看里面的实现。&lt;/p&gt;
 
-&lt;h3 id=&quot;side-effects&quot;&gt;3. Side effects&lt;/h3&gt;
+&lt;h3 id=&quot;3-side-effects&quot;&gt;3. Side effects&lt;/h3&gt;
 &lt;blockquote&gt;
   &lt;p&gt;Side effects are any change to the state outside of the current scope.&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -82,7 +964,7 @@ override func viewDidAppear(_ animated: Bool) {
 
 &lt;p&gt;RxSwift被设计来执行这样的事情&lt;/p&gt;
 
-&lt;h3 id=&quot;declarative-code&quot;&gt;4. Declarative code&lt;/h3&gt;
+&lt;h3 id=&quot;4-declarative-code&quot;&gt;4. Declarative code&lt;/h3&gt;
 &lt;blockquote&gt;
   &lt;p&gt;Declarative code lets you define pieces of behavior, and RxSwift will run these behaviors any time there’s a relevant event and provide them an immutable, isolated data input to work with.&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -96,7 +978,7 @@ override func viewDidAppear(_ animated: Bool) {
   &lt;li&gt;isolated&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h3 id=&quot;reactive-systems&quot;&gt;5. Reactive systems&lt;/h3&gt;
+&lt;h3 id=&quot;5-reactive-systems&quot;&gt;5. Reactive systems&lt;/h3&gt;
 &lt;p&gt;Reactive systems我们一般翻译成响应式系统，特别抽象，主要包含以下几种特征&lt;/p&gt;
 
 &lt;ul&gt;
@@ -106,7 +988,7 @@ override func viewDidAppear(_ animated: Bool) {
   &lt;li&gt;Message driven: 组件之间通过消息机制来传递信息，以提高隔离性和可重用性，从生命周期和具体的类实现中解耦（TODO: 具体怎么讲呢）&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;rxswift-1&quot;&gt;RxSwift的组成基础&lt;/h2&gt;
+&lt;h2 id=&quot;rxswift的组成基础&quot;&gt;RxSwift的组成基础&lt;/h2&gt;
 &lt;p&gt;响应性编程其实并不是一个新的概念，这个概念已经存在了很长时间了。但是他的核心思想在最近十年又流行起来。还有一大段历史，始于微软Rx.NET，然后发展出了RxJS，RxKotlin，RxScala以及我们讨论的RxSwift。&lt;/p&gt;
 
 &lt;blockquote&gt;
@@ -133,9 +1015,8 @@ override func viewDidAppear(_ animated: Bool) {
 &lt;h3 id=&quot;operators&quot;&gt;Operators&lt;/h3&gt;
 &lt;p&gt;&lt;em&gt;ObservableType&lt;/em&gt;和&lt;em&gt;Observable&lt;/em&gt;类的实现，包含了很多将异步工作分离成一片片的方法，然后通过组合这些方法来完成一个复杂逻辑。因为这些&lt;em&gt;Operator&lt;/em&gt;绝大部分都不产生&lt;em&gt;side effects&lt;/em&gt;，所以他们可以很容易拼接在一起。&lt;/p&gt;
 
-&lt;p&gt;就像（1 + 2）* 3 - 20一样，你可以通过组合操作符来完成更加复杂的运算。
-&lt;code class=&quot;highlighter-rouge&quot;&gt;
-UIDevice.rx.orientation
+&lt;p&gt;就像（1 + 2）* 3 - 20一样，你可以通过组合操作符来完成更加复杂的运算。&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;UIDevice.rx.orientation
   .filter { value in 
     return value != .landscape 
   }
@@ -145,7 +1026,7 @@ UIDevice.rx.orientation
   .subscribe(onNext: { string in
     showAlert(text: string) 
   })
-&lt;/code&gt;&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;&lt;em&gt;operators&lt;/em&gt;高度组件化（composable，可以组合），总是接受输入，处理后输出，所以你可以简单的把它们链在一起。这种链式编程表意明确，并且通过组合不同的&lt;em&gt;operators&lt;/em&gt;，我们可以实现非常多功能。（Very Handy🤗）&lt;/p&gt;
 
@@ -171,757 +1052,19 @@ UIDevice.rx.orientation
 
 &lt;p&gt;&lt;img src=&quot;/img/in-post/post-RxSwift/RxSwift_02.png&quot; alt=&quot;java-javascript&quot; /&gt;&lt;/p&gt;
 
-&lt;h2 id=&quot;rxcocoacommunity&quot;&gt;RxCocoa和Community&lt;/h2&gt;
+&lt;h2 id=&quot;rxcocoa和community&quot;&gt;RxCocoa和Community&lt;/h2&gt;
 &lt;p&gt;RxCocoa给很多UI控件添加了reactive扩展，这样我们就可以订阅很多UI事件了。&lt;/p&gt;
 
 &lt;p&gt;Community就是社区，有很多扩展的代码和React控件，方便好用&lt;a href=&quot;http://community.rxswift.org&quot;&gt;RxSwift Community Projects&lt;/a&gt;&lt;/p&gt;
 
 </description>
         <pubDate>Mon, 20 Nov 2017 23:00:00 +0800</pubDate>
-        <link>http://lucida.top/2017/11/20/RxSwift-overview/</link>
-        <guid isPermaLink="true">http://lucida.top/2017/11/20/RxSwift-overview/</guid>
+        <link>http://localhost:4000/2017/11/20/RxSwift-overview/</link>
+        <guid isPermaLink="true">http://localhost:4000/2017/11/20/RxSwift-overview/</guid>
         
         <category>RxSwift</category>
         
         <category>读书笔记</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>Example Post</title>
-        <description>&lt;p&gt;JavaScript 有着很奇怪的命名史。&lt;/p&gt;
-
-&lt;p&gt;1995 年，它作为网景浏览器（Netscape Navigator）的一部分首次发布，网景给这个新语言命名为 LiveScript。一年后，为了搭上当时媒体热炒 Java 的顺风车，临时改名为了 JavaScript &lt;em&gt;（当然，Java 和 JavaScript 的关系，就和雷锋和雷锋塔一样 —— 并没有什么关系）&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/img/in-post/post-js-version/javascript-java.jpg&quot; alt=&quot;java-javascript&quot; /&gt;
-&lt;small class=&quot;img-hint&quot;&gt;歪果仁的笑话怎么一点都不好笑&lt;/small&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;译者注：&lt;a href=&quot;https://en.wikipedia.org/wiki/JavaScript#History&quot;&gt;wikipedia 的 JavaScript 词条&lt;/a&gt; 更详细的叙述了这段历史&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;1996 年，网景将 JavaScript 提交给 &lt;a href=&quot;http://www.ecma-international.org/&quot;&gt;ECMA International（欧洲计算机制造商协会）&lt;/a&gt; 进行标准化，并最终确定出新的语言标准，它就是 ECMAScript。自此，ECMAScript 成为所有 JavaScript 实现的基础，不过，由于 JavaScript 名字的历史原因和市场原因（很显然 ECMAScript 这个名字并不令人喜欢……），现实中我们只用 ECMAScript 称呼标准，平时都还是使用 JavaScript 来称呼这个语言。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;术语（译者注）：&lt;/p&gt;
-
-  &lt;ul&gt;
-    &lt;li&gt;&lt;em&gt;标准（Standard）&lt;/em&gt;： 用于定义与其他事物区别的一套规则&lt;/li&gt;
-    &lt;li&gt;&lt;em&gt;实现（Implementation）&lt;/em&gt;： 某个标准的具体实施/真实实践&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;不过，JavaScript 开发者们并不怎么在乎这些，因为在诞生之后的 15 年里，ECMAScript 并没有多少变化，而且现实中的很多实现都已经和标准大相径庭。其实在第一版的 ECMAScript 发布后，很快又跟进发布了两个版本，但是自从 1999 年 ECMAScript 3 发布后，十年内都没有任何改动被成功添加到官方规范里。取而代之的，是各大浏览器厂商们争先进行自己的语言拓展，web 开发者们别无选择只能去尝试并且支持这些 API。即使是在 2009 年 ECMAScript 5 发布之后，仍然用了数年这些新规范才得到了浏览器的广泛支持，可是大部分开发者还是写着 ECMAScript 3 风格的代码，并不觉得有必要去了解这些规范。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;译者注：&lt;a href=&quot;https://en.wikipedia.org/wiki/ECMAScript#4th_Edition_.28abandoned.29&quot;&gt;ECMAScript 第四版草案&lt;/a&gt;由于太过激进而被抛弃，Adobe 的 &lt;a href=&quot;https://en.wikipedia.org/wiki/ActionScript&quot;&gt;ActionScript 3.0&lt;/a&gt; 是 ECMAScript edition 4 的唯一实现（ Flash 差点就统一 Web 了）&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;到了 2012 年，事情突然开始有了转变。大家开始推动停止对旧版本 IE 浏览器的支持，用 ECMAScript 5 (ES5) 风格来编写代码也变得更加可行。与此同时，一个新的 ECMAScript 规范也开始启动。到了这时，大家开始逐渐习惯以对 ECMAScript 规范的版本支持程度来形容各种 JavaScript 实现。在正式被指名为 ECMAScript 第 6 版 (ES6) 之前，这个新的标准原本被称为 ES.Harmony（和谐）。2015 年，负责制定 ECMAScript 规范草案的委员会 TC39 决定将定义新标准的制度改为一年一次，这意味着每个新特性一旦被批准就可以添加，而不像以往一样，规范只有在整个草案完成，所有特性都没问题后才能被定稿。因此，ECMAScript 第 6 版在六月份公布之前，又被重命名为了 ECMAScript 2015（ES2015）&lt;/p&gt;
-
-&lt;p&gt;目前，仍然有很多新的 JavaScript 特性或语法正在提议中，包括 &lt;a href=&quot;https://github.com/wycats/javascript-decorators&quot;&gt;decorators（装饰者）&lt;/a&gt;，&lt;a href=&quot;https://github.com/lukehoban/ecmascript-asyncawait&quot;&gt;async-await（async-await 异步编程模型）&lt;/a&gt; 和 &lt;a href=&quot;https://github.com/jeffmo/es-class-properties&quot;&gt;static class properties（静态类属性）&lt;/a&gt;。它们通常被称为 ES7，ES2016 或者 ES.Next 的特性，不过实际上它们只能被称作提案或者说可能性，毕竟 ES2016 的规范还没有完成，有可能全部都会引入，也有可能一个都没有。TC39 把一个提案分为 4 个阶段，你可以在 &lt;a href=&quot;https://babeljs.io/docs/usage/experimental/&quot;&gt;Babel 的官网&lt;/a&gt; 上查看各个提案目前都在哪个阶段了。&lt;/p&gt;
-
-&lt;p&gt;所以，我们该如何使用这一大堆术语呢？下面的列表或许能帮助到你：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;ECMAScript&lt;/strong&gt;：一个由 ECMA International 进行标准化，TC39 委员会进行监督的语言。通常用于指代标准本身。&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;JavaScript&lt;/strong&gt;：ECMAScript 标准的各种实现的最常用称呼。这个术语并不局限于某个特定版本的 ECMAScript 规范，并且可能被用于任何不同程度的任意版本的 ECMAScript 的实现。&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;ECMAScript 5 (ES5)&lt;/strong&gt;：ECMAScript 的第五版修订，于 2009 年完成标准化。这个规范在所有现代浏览器中都相当完全的实现了。&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;ECMAScript 6 (ES6) / ECMAScript 2015 (ES2015)&lt;/strong&gt;：ECMAScript 的第六版修订，于 2015 年完成标准化。这个标准被部分实现于大部分现代浏览器。可以查阅&lt;a href=&quot;http://kangax.github.io/compat-table/es6/&quot;&gt;这张兼容性表&lt;/a&gt;来查看不同浏览器和工具的实现情况。&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;ECMAScript 2016&lt;/strong&gt;：预计的第七版 ECMAScript 修订，计划于明年夏季发布。这份规范具体将包含哪些特性还没有最终确定&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;ECMAScript Proposals&lt;/strong&gt;：被考虑加入未来版本 ECMAScript 标准的特性与语法提案，他们需要经历五个阶段：Strawman（稻草人），Proposal（提议），Draft（草案），Candidate（候选）以及 Finished （完成）。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;在这整个 Blog 中，我将把目前的 ECMAScript 版本称作 ES6（因为这是大部分开发者最习以为常的），把明年的规范称作 ES2016（因为，与 ES6/ES2015 不同，这个名字将在整个标准化过程中沿用）并且将那些还没有成为 ECMAScript 定稿或草案的未来语言概念称为 ECMAScript 提案或者 JavaScript 提案。我将尽我所能在任何可能引起困惑的场合沿用这篇文章。&lt;/p&gt;
-
-&lt;h4 id=&quot;section&quot;&gt;一些资源&lt;/h4&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;TC39 的 &lt;a href=&quot;https://github.com/tc39/ecma262&quot;&gt;Github 仓库&lt;/a&gt;上可以看到所有目前公开的提案&lt;/li&gt;
-  &lt;li&gt;如果你还不熟悉 ES6，Babel 有一个&lt;a href=&quot;https://babeljs.io/docs/learn-es2015/&quot;&gt;很不错的特性概览&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;如果你希望深入 ES6，这里有两本很不错的书： Axel Rauschmayer 的 &lt;a href=&quot;http://exploringjs.com/&quot;&gt;Exploring ES6&lt;/a&gt;和 Nicholas Zakas 的 &lt;a href=&quot;https://leanpub.com/understandinges6&quot;&gt;Understanding ECMAScript 6&lt;/a&gt;。Axel 的博客 &lt;a href=&quot;http://www.2ality.com/&quot;&gt;2ality&lt;/a&gt; 也是很不错的 ES6 资源&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img class=&quot;shadow&quot; width=&quot;320&quot; src=&quot;/img/in-post/post-js-version/keep-calm-and-learn-javascript.png&quot; /&gt;
-&lt;small class=&quot;img-hint&quot;&gt;来学 JavaScript 吧！&lt;/small&gt;&lt;/p&gt;
-
-&lt;h4 id=&quot;section-1&quot;&gt;著作权声明&lt;/h4&gt;
-
-&lt;p&gt;本文译自 &lt;a href=&quot;http://benmccormick.org/2015/09/14/es5-es6-es2016-es-next-whats-going-on-with-javascript-versioning/&quot;&gt;ES5, ES6, ES2016, ES.Next: What’s going on with JavaScript versioning?&lt;/a&gt; &lt;br /&gt;
-译者 &lt;a href=&quot;http://weibo.com/huxpro&quot;&gt;黄玄&lt;/a&gt;，首次发布于 &lt;a href=&quot;http://huangxuan.me&quot;&gt;Hux Blog&lt;/a&gt;，转载请保留以上链接&lt;/p&gt;
-</description>
-        <pubDate>Tue, 22 Sep 2015 00:00:00 +0800</pubDate>
-        <link>http://lucida.top/2015/09/22/js-version/</link>
-        <guid isPermaLink="true">http://lucida.top/2015/09/22/js-version/</guid>
-        
-        <category>前端开发</category>
-        
-        <category>JavaScript</category>
-        
-        <category>翻译</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>Example Post using Keynote Layout</title>
-        <description>&lt;blockquote&gt;
-  &lt;p&gt;下滑这里查看更多内容&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;7月9日，我在公司内部进行了名为「JavaScript 模块化七日谈」分享，并将该 Slides 分享到了微博上。出乎意料地，这篇微博先后被 @JS小组 @尤小右 @寸志 等近 200 人转发，阅读达到 10w，获得了还不错的评价。&lt;/p&gt;
-
-&lt;p&gt;于是，我决定将它重新发到我的博客上，并为它专门制作了适用于 Keynote 展示文稿的新布局。它能自动根据屏幕大小/旋转以一定比例填充屏幕，你也可以直接点击下方链接在新页面打开，来获得更好的、沉浸式的全屏体验&lt;/p&gt;
-
-&lt;h3 id=&quot;watch-slides-httphuangxuanmejs-module-7day&quot;&gt;&lt;a href=&quot;http://huangxuan.me/js-module-7day&quot;&gt;Watch Slides →&lt;/a&gt;&lt;/h3&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://huangxuan.me/js-module-7day/attach/qrcode.png&quot; width=&quot;350&quot; height=&quot;350&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;small class=&quot;img-hint&quot;&gt;你也可以通过扫描二维码在手机上观看&lt;/small&gt;&lt;/p&gt;
-
-&lt;p&gt;这个 Web Slides 开源在&lt;a href=&quot;https://github.com/Huxpro/js-module-7day&quot;&gt;我的 Github 上&lt;/a&gt;，欢迎你帮助我完善这个展示文稿，你可以给我提 issue，可以 fork &amp;amp; pull request。如果它能帮助到你了，希望你还能不吝啬 star 一下这个项目&lt;/p&gt;
-
-&lt;h3 id=&quot;catalog&quot;&gt;Catalog&lt;/h3&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;第一日 上古时期 &lt;strong&gt;&lt;em&gt;Module?&lt;/em&gt;&lt;/strong&gt; 从设计模式说起&lt;/li&gt;
-  &lt;li&gt;第二日 石器时代 &lt;strong&gt;&lt;em&gt;Script Loader&lt;/em&gt;&lt;/strong&gt; 只有封装性可不够，我们还需要加载&lt;/li&gt;
-  &lt;li&gt;第三日 蒸汽朋克 &lt;strong&gt;&lt;em&gt;Module Loader&lt;/em&gt;&lt;/strong&gt; 模块化架构的工业革命&lt;/li&gt;
-  &lt;li&gt;第四日 号角吹响 &lt;strong&gt;&lt;em&gt;CommonJS&lt;/em&gt;&lt;/strong&gt; 征服世界的第一步是跳出浏览器&lt;/li&gt;
-  &lt;li&gt;第五日 双塔奇兵 &lt;strong&gt;&lt;em&gt;AMD/CMD&lt;/em&gt;&lt;/strong&gt; 浏览器环境模块化方案&lt;/li&gt;
-  &lt;li&gt;第六日 精灵宝钻 &lt;strong&gt;&lt;em&gt;Browserify/Webpack&lt;/em&gt;&lt;/strong&gt; 大势所趋，去掉这层包裹！&lt;/li&gt;
-  &lt;li&gt;第七日 王者归来 &lt;strong&gt;&lt;em&gt;ES6 Module&lt;/em&gt;&lt;/strong&gt; 最后的战役&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;thanks&quot;&gt;Thanks&lt;/h3&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://lab.hakim.se/reveal-js&quot;&gt;Reveal.js&lt;/a&gt;&lt;/p&gt;
-</description>
-        <pubDate>Thu, 09 Jul 2015 00:00:00 +0800</pubDate>
-        <link>http://lucida.top/2015/07/09/js-module-7day/</link>
-        <guid isPermaLink="true">http://lucida.top/2015/07/09/js-module-7day/</guid>
-        
-        <category>前端开发</category>
-        
-        <category>JavaScript</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>Example Post with Code Highlight</title>
-        <description>&lt;h2 id=&quot;foreword&quot;&gt;Foreword&lt;/h2&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Here comes Module!&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;随着网站逐渐变成「互联网应用程序」，嵌入网页的 JavaScript 代码越来越庞大，越来越复杂。网页越来越像桌面程序，需要一个团队分工协作、进度管理、单元测试……我们不得不使用软件工程的方法，来管理网页的业务逻辑。&lt;/p&gt;
-
-&lt;p&gt;于是，JavaScript 的模块化成为迫切需求。在 ES6 Module 来临之前，JavaScript 社区提供了强大支持，尝试在现有的运行环境下，实现模块的效果。&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;h2 id=&quot;catalog&quot;&gt;Catalog&lt;/h2&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;a href=&quot;#commonjs--node&quot;&gt;CommonJS &amp;amp; Node&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#history&quot;&gt;History&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#requirejs--amd&quot;&gt;RequireJS &amp;amp; AMD&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#seajs--cmd&quot;&gt;SeaJS &amp;amp; CMD&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#amd-vs-cmd&quot;&gt;AMD vs CMD&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#webpack&quot;&gt;WebPack&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;commonjs--node&quot;&gt;CommonJS &amp;amp; Node&lt;/h2&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Javascript: not just for browsers any more! —— CommonJS Slogen&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;前端模块化的事实标准之一，2009 年 8 月，&lt;a href=&quot;http://wiki.commonjs.org/wiki/CommonJS&quot;&gt;CommonJS&lt;/a&gt; 诞生。&lt;/p&gt;
-
-&lt;p&gt;CommonJS 本质上只是一套规范（API 定义），而 Node.js 采用并实现了部分规范，CommonJS Module 的写法也因此广泛流行。&lt;/p&gt;
-
-&lt;p&gt;让我们看看 Node 中的实现：&lt;/p&gt;
-
-&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// 由于 Node 原生支持模块的作用域，并不需要额外的 wrapper&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;// &quot;as though the module was wrapped in a function&quot;&lt;/span&gt;
-
-&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;./a&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;// 加载模块（同步加载）&lt;/span&gt;
-&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;         &lt;span class=&quot;c1&quot;&gt;// 等上一句执行完才会执行&lt;/span&gt;
-
-&lt;span class=&quot;nx&quot;&gt;exports&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(){&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 暴露 b 函数接口&lt;/span&gt;
-  &lt;span class=&quot;c1&quot;&gt;// do something&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;exports&lt;/code&gt;是一个内置对象，就像&lt;code class=&quot;highlighter-rouge&quot;&gt;require&lt;/code&gt;是一个内置加载函数一样。如果你希望直接赋值一个完整的对象或者构造函数，覆写&lt;code class=&quot;highlighter-rouge&quot;&gt;module.exports&lt;/code&gt;就可以了。&lt;/p&gt;
-
-&lt;p&gt;CommonJS 前身叫 ServerJS ，&lt;strong&gt;后来希望能更加 COMMON，成为通吃各种环境的模块规范，改名为 CommonJS&lt;/strong&gt; 。CommonJS 最初只专注于 Server-side 而非浏览器环境，因此它采用了同步加载的机制，这对服务器环境（硬盘 I/O 速度）不是问题，而对浏览器环境（网速）来说并不合适。&lt;/p&gt;
-
-&lt;p&gt;因此，各种适用于浏览器环境的模块框架与标准逐个诞生，他们的共同点是：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;采用异步加载（预先加载所有依赖的模块后回调执行，符合浏览器的网络环境）&lt;/li&gt;
-  &lt;li&gt;虽然代码风格不同，但其实都可以看作 CommonJS Modules 语法的变体。&lt;/li&gt;
-  &lt;li&gt;都在向着 &lt;strong&gt;COMMON&lt;/strong&gt; 的方向进化：&lt;strong&gt;兼容不同风格，兼容浏览器和服务器两种环境&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;本文接下来要讨论的典例是：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;RequireJS &amp;amp; AMD（异步加载，预执行，依赖前置。默认推荐 AMD 写法）&lt;/li&gt;
-  &lt;li&gt;SeaJS &amp;amp; CMD（异步加载，懒执行，依赖就近，默认推荐 CommonJS 写法）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;history&quot;&gt;History&lt;/h2&gt;
-
-&lt;!--&lt;h2 id=&quot;history&quot;&gt; History &lt;/h2&gt;--&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;此段落参考自玉伯的 &lt;a href=&quot;https://github.com/seajs/seajs/issues/588&quot;&gt;前端模块化开发那点历史&lt;/a&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;09-10 年间，CommonJS（那时还叫 ServerJS） 社区推出 &lt;a href=&quot;http://wiki.commonjs.org/wiki/Modules&quot;&gt;Modules/1.0&lt;/a&gt; 规范，并且在 Node.js 等环境下取得了很不错的实践。&lt;/p&gt;
-
-&lt;p&gt;09年下半年这帮充满干劲的小伙子们想把 ServerJS 的成功经验进一步推广到浏览器端，于是将社区改名叫 CommonJS，同时激烈争论 Modules 的下一版规范。分歧和冲突由此诞生，逐步形成了三大流派：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;Modules/1.x&lt;/strong&gt; 流派。这个观点觉得 1.x 规范已经够用，只要移植到浏览器端就好。要做的是新增 &lt;a href=&quot;http://wiki.commonjs.org/wiki/Modules/Transport&quot;&gt;Modules/Transport&lt;/a&gt; 规范，即在浏览器上运行前，先通过转换工具将模块转换为符合 Transport 规范的代码。主流代表是服务端的开发人员。现在值得关注的有两个实现：越来越火的 component 和走在前沿的 es6 module transpiler。&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Modules/Async&lt;/strong&gt; 流派。这个观点觉得浏览器有自身的特征，不应该直接用 Modules/1.x 规范。这个观点下的典型代表是 &lt;a href=&quot;http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition&quot;&gt;AMD&lt;/a&gt; 规范及其实现 &lt;a href=&quot;http://requirejs.org/&quot;&gt;RequireJS&lt;/a&gt;。这个稍后再细说。&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Modules/2.0&lt;/strong&gt; 流派。这个观点觉得浏览器有自身的特征，不应该直接用 Modules/1.x 规范，但应该尽可能与 Modules/1.x 规范保持一致。这个观点下的典型代表是 BravoJS 和 FlyScript 的作者。BravoJS 作者对 CommonJS 的社区的贡献很大，这份 Modules/2.0-draft 规范花了很多心思。FlyScript 的作者提出了 Modules/Wrappings 规范，这规范是 CMD 规范的前身。可惜的是 BravoJS 太学院派，FlyScript 后来做了自我阉割，将整个网站（flyscript.org）下线了。这个观点在本文中的典型代表就是 SeaJS 和 CMD 了&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;补一嘴：阿里 KISSY 的 KMD 其实跟 AMD 非常类似，只是用 &lt;code class=&quot;highlighter-rouge&quot;&gt;add&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;use&lt;/code&gt; 两个源自于 YUI Modules 的函数名替换了 &lt;code class=&quot;highlighter-rouge&quot;&gt;define&lt;/code&gt; 和 &lt;code class=&quot;highlighter-rouge&quot;&gt;require&lt;/code&gt; ，但其原理更接近 RequireJS ，与 YUI Modules 的 &lt;code class=&quot;highlighter-rouge&quot;&gt;Y&lt;/code&gt; 沙箱 Attach 机制并不相同&lt;/p&gt;
-
-&lt;h2 id=&quot;requirejs--amd&quot;&gt;RequireJS &amp;amp; AMD&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition&quot;&gt;AMD (Async Module Definition)&lt;/a&gt; 是 RequireJS 在推广过程中对模块定义的规范化产出。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;RequireJS is a JavaScript file and module loader. It is optimized for in-browser use, but it can be used in other JavaScript environments&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;RequireJS 主要解决的还是 CommonJS 同步加载脚本不适合浏览器 这个问题：&lt;/p&gt;
-
-&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;//CommonJS&lt;/span&gt;
-
-&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Employee&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;types/Employee&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-
-&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Programmer&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(){&lt;/span&gt;
-    &lt;span class=&quot;c1&quot;&gt;//do something&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
-
-&lt;span class=&quot;nx&quot;&gt;Programmer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;prototype&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Employee&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-
-&lt;span class=&quot;c1&quot;&gt;//如果 require call 是异步的，那么肯定 error&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;//因为在执行这句前 Employee 模块肯定来不及加载进来&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;As the comment indicates above, if require() is async, this code will not work. However, loading scripts synchronously in the browser kills performance. So, what to do?&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;所以我们需要 &lt;strong&gt;Function Wrapping&lt;/strong&gt; 来获取依赖并且提前通过 script tag 提前加载进来&lt;/p&gt;
-
-&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;//AMD Wrapper&lt;/span&gt;
-
-&lt;span class=&quot;nx&quot;&gt;define&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;types&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Employee&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;    &lt;span class=&quot;c1&quot;&gt;//依赖&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Employee&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;//这个回调会在所有依赖都被加载后才执行&lt;/span&gt;
-
-        &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Programmer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(){&lt;/span&gt;
-            &lt;span class=&quot;c1&quot;&gt;//do something&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
-
-        &lt;span class=&quot;nx&quot;&gt;Programmer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;prototype&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Employee&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Programmer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;//return Constructor&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;当依赖模块非常多时，这种&lt;strong&gt;依赖前置&lt;/strong&gt;的写法会显得有点奇怪，所以 AMD 给了一个语法糖， &lt;strong&gt;simplified CommonJS wrapping&lt;/strong&gt;，借鉴了 CommonJS 的 require 就近风格，也更方便对 CommonJS 模块的兼容：&lt;/p&gt;
-
-&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;define&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;dependency1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;dependency1&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
-        &lt;span class=&quot;nx&quot;&gt;dependency2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;dependency2&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{};&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;The AMD loader will parse out the &lt;code class=&quot;highlighter-rouge&quot;&gt;require(&#39;&#39;)&lt;/code&gt; calls by using &lt;code class=&quot;highlighter-rouge&quot;&gt;Function.prototype.toString()&lt;/code&gt;, then internally convert the above define call into this:&lt;/p&gt;
-
-&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;define&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;require&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;dependency1&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;dependency2&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;dependency1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;dependency1&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
-        &lt;span class=&quot;nx&quot;&gt;dependency2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;dependency2&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{};&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;出于&lt;code class=&quot;highlighter-rouge&quot;&gt;Function.prototype.toString()&lt;/code&gt;兼容性和性能的考虑，最好的做法还是做一次 &lt;strong&gt;optimized build&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;AMD 和 CommonJS 的核心争议如下：&lt;/p&gt;
-
-&lt;h3 id=&quot;section&quot;&gt;1. &lt;strong&gt;执行时机&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;Modules/1.0:&lt;/p&gt;
-
-&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;./a&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 执行到此时，a.js 才同步下载并执行&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;AMD: （使用 require 的语法糖时）&lt;/p&gt;
-
-&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;define&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;require&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)){&lt;/span&gt;
-    &lt;span class=&quot;c1&quot;&gt;// 在这里，a.js 已经下载并且执行好了&lt;/span&gt;
-    &lt;span class=&quot;c1&quot;&gt;// 使用 require() 并不是 AMD 的推荐写法&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;./a&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 此处仅仅是取模块 a 的 exports&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;AMD 里提前下载 a.js 是出于对浏览器环境的考虑，只能采取异步下载，这个社区都认可（Sea.js 也是这么做的）&lt;/p&gt;
-
-&lt;p&gt;但是 AMD 的执行是 Early Executing，而 Modules/1.0 是第一次 require 时才执行。这个差异很多人不能接受，包括持 Modules/2.0 观点的人也不能接受。&lt;/p&gt;
-
-&lt;h3 id=&quot;section-1&quot;&gt;2. &lt;strong&gt;书写风格&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;AMD 推荐的风格并不使用&lt;code class=&quot;highlighter-rouge&quot;&gt;require&lt;/code&gt;，而是通过参数传入，破坏了&lt;strong&gt;依赖就近&lt;/strong&gt;：&lt;/p&gt;
-
-&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;define&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
-    &lt;span class=&quot;c1&quot;&gt;// 提前申明了并初始化了所有模块&lt;/span&gt;
-
-    &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//即便根本没用到模块 b，但 b 还是提前执行了。&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;不过，在笔者看来，风格喜好因人而异，主要还是&lt;strong&gt;预执行&lt;/strong&gt;和&lt;strong&gt;懒执行&lt;/strong&gt;的差异。&lt;/p&gt;
-
-&lt;p&gt;另外，require 2.0 也开始思考异步处理&lt;strong&gt;软依赖&lt;/strong&gt;（区别于一定需要的&lt;strong&gt;硬依赖&lt;/strong&gt;）的问题，提出了这样的方案：&lt;/p&gt;
-
-&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// 函数体内：&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;status&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
-    &lt;span class=&quot;nx&quot;&gt;async&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;a&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
-        &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;seajs--cmd&quot;&gt;SeaJS &amp;amp; CMD&lt;/h2&gt;
-
-&lt;p&gt;CMD (Common Module Definition) 是 &lt;a href=&quot;http://seajs.org/docs/&quot;&gt;SeaJS&lt;/a&gt; 在推广过程中对模块定义的规范化产出，是 Modules/2.0 流派的支持者，因此 SeaJS 的模块写法尽可能与 Modules/1.x 规范保持一致。&lt;/p&gt;
-
-&lt;p&gt;不过目前国外的该流派都死得差不多了，RequireJS 目前成为浏览器端模块的事实标准，国内最有名气的就是玉伯的 Sea.js ，不过对国际的推广力度不够。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;CMD Specification
-    &lt;ul&gt;
-      &lt;li&gt;&lt;a href=&quot;https://github.com/cmdjs/specification/blob/master/draft/module.md&quot;&gt;English (CMDJS-repo)&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;https://github.com/seajs/seajs/issues/242&quot;&gt;Chinese (SeaJS-repo)&lt;/a&gt;&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;CMD 主要有 define, factory, require, export 这么几个东西&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;define &lt;code class=&quot;highlighter-rouge&quot;&gt;define(id?, deps?, factory)&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;factory &lt;code class=&quot;highlighter-rouge&quot;&gt;factory(require, exports, module)&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;require &lt;code class=&quot;highlighter-rouge&quot;&gt;require(id)&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;exports &lt;code class=&quot;highlighter-rouge&quot;&gt;Object&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;CMD 推荐的 Code Style 是使用 CommonJS 风格的 &lt;code class=&quot;highlighter-rouge&quot;&gt;require&lt;/code&gt;：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;这个 require 实际上是一个全局函数，用于加载模块，这里实际就是传入而已&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;define&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;exports&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-
-    &lt;span class=&quot;c1&quot;&gt;// 获取模块 a 的接口&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;./a&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;c1&quot;&gt;// 调用模块 a 的方法&lt;/span&gt;
-    &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-
-    &lt;span class=&quot;c1&quot;&gt;// 对外提供 foo 属性&lt;/span&gt;
-    &lt;span class=&quot;nx&quot;&gt;exports&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;bar&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;c1&quot;&gt;// 对外提供 doSomething 方法&lt;/span&gt;
-    &lt;span class=&quot;nx&quot;&gt;exports&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;doSomething&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{};&lt;/span&gt;
-
-&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;但是你也可以使用 AMD 风格，或者使用 return 来进行模块暴露&lt;/p&gt;
-
-&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;define&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;hello&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;jquery&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;exports&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-
-    &lt;span class=&quot;c1&quot;&gt;// 模块代码...&lt;/span&gt;
-
-    &lt;span class=&quot;c1&quot;&gt;// 直接通过 return 暴露接口&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;na&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;bar&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-        &lt;span class=&quot;na&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
-
-&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Sea.js 借鉴了 RequireJS 的不少东西，比如将 FlyScript 中的 module.declare 改名为 define 等。Sea.js 更多地来自 Modules/2.0 的观点，但尽可能去掉了学院派的东西，加入了不少实战派的理念。&lt;/p&gt;
-
-&lt;h2 id=&quot;amd-vs-cmd&quot;&gt;AMD vs CMD&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;虽然两者目前都兼容各种风格，但其底层原理并不相同，从其分别推荐的写法就可以看出两者背后原理的不同：&lt;/strong&gt;&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;对于依赖的模块，AMD 是&lt;strong&gt;提前执行&lt;/strong&gt;，CMD 是&lt;strong&gt;懒执行&lt;/strong&gt;。（都是先加载）
-    &lt;ul&gt;
-      &lt;li&gt;CMD 推崇&lt;strong&gt;依赖就近&lt;/strong&gt;，AMD 推崇&lt;strong&gt;依赖前置&lt;/strong&gt;。&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;看代码：&lt;/p&gt;
-
-&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// AMD 默认推荐&lt;/span&gt;
-
-&lt;span class=&quot;nx&quot;&gt;define&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;./a&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;./b&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;// 依赖前置，提前执行&lt;/span&gt;
-
-    &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-    &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-
-&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
-
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// CMD&lt;/span&gt;
-
-&lt;span class=&quot;nx&quot;&gt;define&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;exports&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-
-    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;./a&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-
-    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;./b&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 依赖就近，延迟执行&lt;/span&gt;
-    &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;webpack&quot;&gt;WebPack&lt;/h2&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;working…&lt;/p&gt;
-&lt;/blockquote&gt;
-</description>
-        <pubDate>Mon, 25 May 2015 00:00:00 +0800</pubDate>
-        <link>http://lucida.top/2015/05/25/js-module-loader/</link>
-        <guid isPermaLink="true">http://lucida.top/2015/05/25/js-module-loader/</guid>
-        
-        <category>前端开发</category>
-        
-        <category>JavaScript</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>Example Post</title>
-        <description>&lt;blockquote&gt;
-  &lt;p&gt;This document is not completed and will be updated anytime.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;catagory&quot;&gt;Catagory&lt;/h2&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;a href=&quot;#unix&quot;&gt;Unix&lt;/a&gt;
-    &lt;ol&gt;
-      &lt;li&gt;&lt;a href=&quot;#bell-labs&quot;&gt;Bell Labs&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#xenix&quot;&gt;Xenix&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#bsd&quot;&gt;BSD&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#freebsd--apple&quot;&gt;FreeBSD &amp;amp; Apple&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#nextstep&quot;&gt;NeXTStep&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#darwin&quot;&gt;Darwin&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#posix&quot;&gt;POSIX&lt;/a&gt;&lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#unix-like&quot;&gt;Unix-like&lt;/a&gt;
-    &lt;ol&gt;
-      &lt;li&gt;&lt;a href=&quot;#single-unix-specification&quot;&gt;Single Unix Specification&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#apple-ios&quot;&gt;Apple iOS&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#xnu-kernel&quot;&gt;XNU Kernel&lt;/a&gt;&lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#linux&quot;&gt;Linux&lt;/a&gt;
-    &lt;ol&gt;
-      &lt;li&gt;&lt;a href=&quot;#linux-kernel&quot;&gt;Linux Kernel&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#gnu-project&quot;&gt;GNU Project&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#android&quot;&gt;Android&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#android-kernel&quot;&gt;Android Kernel&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#android-rom&quot;&gt;Android ROM&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#chrome-os&quot;&gt;Chrome OS&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#chromium-os&quot;&gt;Chromium OS&lt;/a&gt;&lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;hr /&gt;
-
-&lt;h2 id=&quot;unix&quot;&gt;Unix&lt;/h2&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Unix is a &lt;strong&gt;family&lt;/strong&gt; of multitasking, multiuser computer OS.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Derive from the original &lt;strong&gt;AT&amp;amp;T Unix&lt;/strong&gt;, Developed in the 1970s at &lt;strong&gt;Bell Labs&lt;/strong&gt; (贝尔实验室), initially intended for use inside the &lt;strong&gt;Bell System&lt;/strong&gt;.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;h4 id=&quot;bell-labs&quot;&gt;Bell Labs&lt;/h4&gt;
-    &lt;p&gt;Bell 和 AT&amp;amp;A 在那时已经是一家了，可以看到那时的通信公司真是一线 IT 公司呢。
-&lt;strong&gt;C 语言也是 Bell Labs 的产物&lt;/strong&gt;，从一开始就是为了用于 Unix 而设计出来的。所以 Unix （在 73 年用 C 重写）在高校流行后，C 语言也获得了广泛支持。&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;AT&amp;amp;T licensed Unix to outside parties(第三方) from the late 1970s, leading to a variety of both &lt;strong&gt;academic&lt;/strong&gt; (最有有名的 BSD ) and &lt;strong&gt;commercial&lt;/strong&gt; (Microsoft Xenix, IBM AIX, SunOS Solaris)&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;h4 id=&quot;xenix&quot;&gt;Xenix&lt;/h4&gt;
-    &lt;p&gt;微软 1979 年从 AT&amp;amp;A 授权来的 Unix OS，配合着 x86 成为当时最受欢迎的 Unix 发行版。后来 M$ 和 IBM 合作开发 OS/2 操作系统后放弃，后来最终转向 &lt;strong&gt;Windows NT&lt;/strong&gt;。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;h4 id=&quot;bsd&quot;&gt;BSD&lt;/h4&gt;
-    &lt;p&gt;&lt;strong&gt;Barkeley Software Distribution&lt;/strong&gt;, also called Berkeley Unix. Today the term “BSD” is used to refer to any of the BSD descendants(后代) which together form a branch of the family of Unix-like OS.(共同组成了一个分支)&lt;/p&gt;
-    &lt;ul&gt;
-      &lt;li&gt;&lt;strong&gt;BSD 最大的贡献是在 BSD 中率先增加了虚拟存储器和 Internet 协议&lt;/strong&gt;，其 TCP/IP(IPv4 only) 代码仍然在现代 OS 上使用（ Microsoft Windows and most of the foundation of Apple’s OS X and iOS ）&lt;/li&gt;
-      &lt;li&gt;BSD 后来发展出了众多开源后代，包括 FreeBSD, OpenBSD, NetBSD 等等……很多闭源的 vendor Unix 也都从 BSD 衍生而来。&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;h4 id=&quot;freebsd--apple&quot;&gt;FreeBSD &amp;amp; Apple&lt;/h4&gt;
-    &lt;p&gt;FreeBSD 不但是 Open Source BSD 中占有率最高的，还直接影响了 Apple Inc : NeXT Computer 的团队在 FreeBSD 上衍生出了 NeXTSTEP 操作系统，这货后来在 Apple 时期演化成了 &lt;strong&gt;Darwin&lt;/strong&gt; ，这个“达尔文”居然还是个开源系统，而且是 the Core of &lt;strong&gt;Mac OS X&lt;/strong&gt; and &lt;strong&gt;iOS&lt;/strong&gt;.&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;h4 id=&quot;nextstep&quot;&gt;NeXTSTEP&lt;/h4&gt;
-    &lt;p&gt;An &lt;strong&gt;object-oriented&lt;/strong&gt;, multitasking OS. Low-level C but High-level OC language and runtime the first time, combined with an &lt;strong&gt;OO aplication layer&lt;/strong&gt; and including several “kits”.  &lt;br /&gt;
-大家都知道 NeXT 是 Steve Jobs 被 forced out of Apple 后和 a few of his coworkers 创办的，所以 &lt;strong&gt;NeXTSTEP 绝对是证明 Jobs 实力的作品。&lt;/strong&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;h4 id=&quot;darwin&quot;&gt;Darwin&lt;/h4&gt;
-    &lt;p&gt;&lt;a href=&quot;http://en.wikipedia.org/wiki/Darwin_(operating_system\)&quot;&gt;Darwin&lt;/a&gt;, the core set of components upon which Mac OS X and iOS based, mostly POSIX compatible, but has never, by itself, been certified as being compatible with any version of &lt;strong&gt;POSIX&lt;/strong&gt;. (OS X, since Leopard, has been certified as compatible with the Single UNIX Specification version 3)&lt;br /&gt;
-&lt;strong&gt;所以说 Mac OS X 算是很正统 Unix 的了&lt;/strong&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;h4 id=&quot;posix&quot;&gt;POSIX&lt;/h4&gt;
-    &lt;p&gt;可移植操作系统接口, Portable Operating System Interface, is a family of standards specified by the IEEE from maintaining compatibility between OS, defines the API along with Command Line Shells and utility interfaces, for software comaptibility with variants of Unix and other OS.&lt;/p&gt;
-    &lt;ul&gt;
-      &lt;li&gt;Fully POSIX compliant:
-        &lt;ul&gt;
-          &lt;li&gt;OS X&lt;/li&gt;
-          &lt;li&gt;QNX OS (BlackBerry)&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;Mostly complicant:
-        &lt;ul&gt;
-          &lt;li&gt;Linux&lt;/li&gt;
-          &lt;li&gt;OpenBSD/FreeBSD&lt;/li&gt;
-          &lt;li&gt;Darwin (Core of &lt;strong&gt;iOS&lt;/strong&gt; &amp;amp; OS X)&lt;/li&gt;
-          &lt;li&gt;&lt;strong&gt;Android&lt;/strong&gt;&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;Complicant via compatibility feature （通过兼容功能实现兼容）
-        &lt;ul&gt;
-          &lt;li&gt;Windows NT Kernel
-            &lt;ul&gt;
-              &lt;li&gt;Windows Server 2000, 2003, 2008, 2008 R2, 2012&lt;/li&gt;
-            &lt;/ul&gt;
-          &lt;/li&gt;
-          &lt;li&gt;Symbian OS (with PIPS)
-            &lt;ul&gt;
-              &lt;li&gt;Symbian was a closed-source OS.&lt;/li&gt;
-            &lt;/ul&gt;
-          &lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;hr /&gt;
-
-&lt;h2 id=&quot;unix-like&quot;&gt;Unix-like&lt;/h2&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;A Unix-like (sometimes referred to as UN*X or *nix) operating system is one that behaves in a manner similar to a Unix system, while not necessarily conforming to or being certified to any version of the &lt;strong&gt;Single UNIX Specification&lt;/strong&gt;.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;There is no standard for defining the term.&lt;br /&gt;
-其实 Unix-like 是个相对模糊的概念：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;最狭义的 Unix 单指 Bell Labs’s Unix&lt;/li&gt;
-  &lt;li&gt;稍广义的 Unix 指代所有 Licensed Unix, 即通过了 SUS 的 Unix-like ，比如 OS X&lt;/li&gt;
-  &lt;li&gt;最广义的 Unix 即所有 Unix-like 系统，无论它是否通过过任何 SUS，包括 Linux，BSD Family 等&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4 id=&quot;single-unix-specification&quot;&gt;Single UNIX Specification&lt;/h4&gt;
-&lt;p&gt;The Single UNIX Specification (SUS) is the collective name of a family of standards for computer OS, compliance with which is required to &lt;strong&gt;qualify for the name “Unix”&lt;/strong&gt;, like &lt;strong&gt;POSIX&lt;/strong&gt;.&lt;/p&gt;
-
-&lt;h4 id=&quot;apple-ios&quot;&gt;Apple iOS&lt;/h4&gt;
-&lt;p&gt;iOS is a &lt;strong&gt;Unix-like OS based on Darwin(BSD)&lt;/strong&gt; and OS X, which share some frameworks including Core Foundation, Founadtion and the Darwin foundation with OS X, but, Unix-like shell access is not avaliable for users and restricted for apps, &lt;strong&gt;making iOS not fully Unix-compatible either.&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;The iOS kernal is &lt;strong&gt;XNU&lt;/strong&gt;, the kernal of Darwin.&lt;/p&gt;
-
-&lt;h4 id=&quot;xnu-kernel&quot;&gt;XNU Kernel&lt;/h4&gt;
-&lt;p&gt;XNU, the acronym(首字母缩写) for &lt;strong&gt;&lt;em&gt;X is Not Unix&lt;/em&gt;&lt;/strong&gt;, which is the &lt;strong&gt;Computer OS Kernel&lt;/strong&gt; developed at Apple Inc since Dec 1996 for use in the Mac OS X and released as free open source software as part of Darwin.&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;h2 id=&quot;linux&quot;&gt;Linux&lt;/h2&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Linux is a Unix-like and mostly POSIX-compliant computer OS.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Unix_timeline.en.svg/800px-Unix_timeline.en.svg.png&quot; alt=&quot;Unix_timeline&quot; /&gt;&lt;/p&gt;
-
-&lt;h4 id=&quot;linux-kernel&quot;&gt;Linux Kernel&lt;/h4&gt;
-
-&lt;p&gt;严格来讲，术语 Linux 只表示 &lt;a href=&quot;http://en.wikipedia.org/wiki/Linux_kernel&quot;&gt;Linux Kernel&lt;/a&gt; 操作系统内核本身，比如说 Android is Based on Linux (Kernel). Linus 编写的也只是这一部分，一个免费的 Unix-like Kernel，并不属于 GNU Project 的一部分。&lt;/p&gt;
-
-&lt;p&gt;但通常把 Linux 作为 Linux Kernel 与大量配合使用的 GNU Project Software Kit (包括 Bash, Lib, Compiler, 以及后期的 GUI etc) 所组合成的 OS 的统称。（包括各类 Distribution 发行版）&lt;/p&gt;
-
-&lt;p&gt;这类操作系统也被称为 &lt;strong&gt;GNU/Linux&lt;/strong&gt;&lt;/p&gt;
-
-&lt;h4 id=&quot;gnu-project&quot;&gt;GNU Project&lt;/h4&gt;
-
-&lt;p&gt;The GNU Project is a &lt;strong&gt;free software, mass collaboration&lt;/strong&gt; project, which based on the following freedom rights:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Users are free to run the software, share (copy, distribute), study and modify it.&lt;/li&gt;
-  &lt;li&gt;GNU software guarantees these freedom-rights legally (via its license).&lt;/li&gt;
-  &lt;li&gt;So it is not only FREE but, more important, FREEDOM.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;In order to ensure that the &lt;em&gt;entire&lt;/em&gt; software of a computer grants its users all freedom rights (use, share, study, modify), even the most fundamental and important part, &lt;strong&gt;the operating system&lt;/strong&gt;, needed to be written.&lt;/p&gt;
-
-&lt;p&gt;This OS is decided to called &lt;strong&gt;GNU (a recursive acronym meaning “GNU is not Unix”)&lt;/strong&gt;. By 1992, the GNU Project had completed all of the major OS components except for their kernel, &lt;em&gt;GNU Hurd&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;With the release of the third-party &lt;strong&gt;Linux Kernel&lt;/strong&gt;, started independently by &lt;em&gt;Linus Torvalds&lt;/em&gt; in 1991 and released under the GPLv0.12 in 1992, for the first time it was possible to run an OS &lt;strong&gt;composed completely of free software&lt;/strong&gt;.&lt;/p&gt;
-
-&lt;p&gt;Though the Linux kernel is not part of the GNU project, it was developed using GCC and other GNU programming tools and was released as free software under the GPL.&lt;/p&gt;
-
-&lt;p&gt;Anyway, there eventually comes to the &lt;strong&gt;GNU/Linux&lt;/strong&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;GPL&lt;/strong&gt;: GNU General Public License&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;GCC&lt;/strong&gt;: GNU Compiler Collection&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;其他与 GPL 相关的自由/开源软件公共许可证：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;http://en.wikipedia.org/wiki/Mozilla_Public_License&quot;&gt;Mozilla Public License&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://en.wikipedia.org/wiki/MIT_License&quot;&gt;MIT License&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://en.wikipedia.org/wiki/BSD_licenses&quot;&gt;BSD Public License&lt;/a&gt;
-    &lt;ul&gt;
-      &lt;li&gt;GPL 强制后续版本必须是自由软件，而 BSD 的后续可以选择继续开源或者封闭&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://en.wikipedia.org/wiki/Apache_License&quot;&gt;Apache License&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://dl2.iteye.com/upload/attachment/0047/4142/d770c85a-49b7-3c7f-8ae2-cbb6451e00d8.png&quot; alt=&quot;Public License&quot; /&gt;&lt;/p&gt;
-
-&lt;h4 id=&quot;android&quot;&gt;Android&lt;/h4&gt;
-
-&lt;p&gt;Android is a mobile OS based on &lt;strong&gt;Linux Kernel&lt;/strong&gt;, so it’s definitely &lt;strong&gt;Unix-like&lt;/strong&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Linux is under GPL so Android has to be open source&lt;/strong&gt;.
-Android’s source code is released by Google under open source licenses, although most Android devices ultimately ship with a combination of open source and proprietary software, including proprietary software developed and licensed by Google &lt;em&gt;(GMS are all proprietary)&lt;/em&gt;&lt;/p&gt;
-
-&lt;h4 id=&quot;android-kernel&quot;&gt;Android Kernel&lt;/h4&gt;
-
-&lt;p&gt;Android’s kernel is based on one of the Linux kernel’s long-term support (LTS) branches.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Android’s variant of the Linux kernel&lt;/strong&gt; has further architectural changes that are implemented by Google outside the typical Linux kernel development cycle, and, certain features that Google contributed back to the Linux kernel. Google maintains a public code repo that contains their experimental work to re-base Android off the latest stable Linux versions.&lt;/p&gt;
-
-&lt;p&gt;Android Kernel 大概是 Linux Kernel 最得意的分支了，Android 也是 Linux 最流行的发行版。不过，也有一些 Google 工程师认为 Android is not Linux in the traditional Unix-like Linux distribution sense. 总之这类东西就算有各种协议也还是很难说清楚，在我理解里 Android Kernel 大概就是 fork Linux Kernel 之后改动和定制比较深的例子。&lt;/p&gt;
-
-&lt;h4 id=&quot;android-rom&quot;&gt;Android ROM&lt;/h4&gt;
-
-&lt;p&gt;既然提到 Android 就不得不提提 Android ROM&lt;/p&gt;
-
-&lt;p&gt;ROM 的本义实际上是只读内存：&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Read-only memory&lt;/strong&gt; (ROM) is a class of storage medium used in computers and other electronic devices. Data stored in ROM can only be modified slowly, with difficulty, or not at all, so it is &lt;strong&gt;mainly used to distribute firmware (固件)&lt;/strong&gt; (software that is very closely tied to specific hardware, and unlikely to need frequent updates).&lt;/p&gt;
-
-&lt;p&gt;ROM 在发展的过程中不断进化，从只读演变成了可编程可擦除，并最终演化成了 Flash&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;PROM (Programmable read-only memory)&lt;/li&gt;
-  &lt;li&gt;EPROM (Erasable programmable read-only memory)&lt;/li&gt;
-  &lt;li&gt;EEPROM (Electrically erasable programmable read-only memory)
-    &lt;ul&gt;
-      &lt;li&gt;Flash memory (闪存)&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Flash 的出现是历史性的，它不但可以作为 ROM 使用，又因其极高的读写速度和稳定性，先后发展成为U盘（USB flash drives）、移动设备主要内置存储，和虐机械硬盘几条街的固态硬盘（SSD），可以说这货基本统一了高端存储市场的技术规格。&lt;/p&gt;
-
-&lt;p&gt;所以我们平时习惯说的 ROM 其实还是来源于老单片机时代，那时的 ROM 真的是写了就很难（需要上电复位）、甚至无法修改，所以那时往 ROM 里烧下去的程序就被称作 firmware ，固件。久而久之，虽然技术发展了，固件仍然指代那些不常需要更新的软件，而 ROM 这个词也就这么沿用下来了。&lt;/p&gt;
-
-&lt;p&gt;所以在 wiki 里是没有 Android ROM 这个词条的，只有 &lt;a href=&quot;http://en.wikipedia.org/wiki/List_of_custom_Android_firmwares&quot;&gt;List of custom Android firmwares&lt;/a&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;A custom firmware, also known as a custom ROM, ROM, or custom OS, is an aftermarket distribution of the Android operating system. They are based on the Android Open Source Project (AOSP), hence most are open-sourced releases, unlike proprietary modifications by device manufacturers.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;各类 Android ROM 在 Android 词类下也都是属于 &lt;strong&gt;Forks and distributions&lt;/strong&gt; 一类的。&lt;/p&gt;
-
-&lt;p&gt;所以我说，其实各类 Android ROM 也好，fork Android 之流的 YunOS、FireOS 也好，改了多少东西，碰到多深的 codebase ……&lt;strong&gt;其实 ROM 和 Distribution OS 的界限是很模糊的&lt;/strong&gt;，为什么 Android 就不可以是移动时代的 Linux ，为什么 Devlik/ART 就不能是移动时代的 GCC 呢？&lt;/p&gt;
-
-&lt;h4 id=&quot;chrome-os&quot;&gt;Chrome OS&lt;/h4&gt;
-
-&lt;p&gt;Chrome OS is an operating system based on the &lt;strong&gt;Linux kernel&lt;/strong&gt; and designed by Google to work with web applications and installed applications.&lt;/p&gt;
-
-&lt;p&gt;虽然目前只是个 Web Thin Client OS ，但是 RoadMap 非常酷……&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;Chrome Packaged Application&lt;/strong&gt; (Support working offline and installed)&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Android App Runtime&lt;/strong&gt; (run Android applications natively…fxxking awesome)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;平复一下激动的心情，还是回到正题来：&lt;/p&gt;
-
-&lt;h4 id=&quot;chromium-os&quot;&gt;Chromium OS&lt;/h4&gt;
-
-&lt;p&gt;Chrome OS is based on Chromium OS, which is the open-source development version of Chrome OS, which is a &lt;strong&gt;Linux distribution&lt;/strong&gt; designed by Google.&lt;/p&gt;
-
-&lt;p&gt;For Detail, Chromium OS based on &lt;a href=&quot;http://en.wikipedia.org/wiki/Gentoo_Linux&quot;&gt;Gentoo Linux&lt;/a&gt;, emm…&lt;/p&gt;
-</description>
-        <pubDate>Tue, 14 Apr 2015 00:00:00 +0800</pubDate>
-        <link>http://lucida.top/2015/04/14/unix-linux-note/</link>
-        <guid isPermaLink="true">http://lucida.top/2015/04/14/unix-linux-note/</guid>
-        
-        <category>OS</category>
-        
-        <category>Unix</category>
-        
-        <category>Linux</category>
         
         
       </item>
